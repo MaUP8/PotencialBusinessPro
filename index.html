@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Potencial Business Pro v6.1 — Wella Professional Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#ffffff; --card:#ffffff; --accent:#C9A961;
+      --text:#2c2c2c; --border:#d4d4d4;
+      --pos:#27AE60; --neg:#E74C3C; --warn:#F39C12;
+      --muted:#666666; --panel:#f8f8f8;
+      --wella-gold:#C9A961; --wella-dark:#1a1a1a;
+    }
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f8f8;color:var(--text);margin:0;padding:20px;line-height:1.6;}
+    .container{max-width:1600px;margin:0 auto;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:25px;align-items:start;}
+    .card{background:white;border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:25px;box-shadow:0 4px 20px rgba(0,0,0,0.06);transition:all 0.3s ease;}
+    .card:hover{box-shadow:0 8px 30px rgba(0,0,0,0.1);transform:translateY(-2px);}
+    h1,h2,h3{color:var(--wella-dark);margin-top:0;letter-spacing:-0.5px;font-family:'Playfair Display',serif;font-weight:700;}
+    h1{font-size:3rem;}
+    h2{font-size:2rem;padding-bottom:16px;border-bottom:3px solid var(--wella-gold);}
+    h3{font-size:1.4rem;}
+    .formGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:25px;margin-bottom:20px;}
+    .field{display:flex;flex-direction:column;gap:10px;position:relative;}
+    label{font-size:0.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;}
+    input,select{background:white;border:2px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;outline:none;transition:0.2s;font-size:15px;font-family:'Inter',sans-serif;}
+    input:focus,select:focus{border-color:var(--wella-gold);box-shadow:0 0 0 3px rgba(201,169,97,0.15);}
+    
+    /* Estilos para mejoras v6.1 */
+    .error-pill { background: var(--neg); color: white; padding: 10px; border-radius: 8px; margin: 10px 0; font-weight: bold; text-align: center; }
+    details.product-category { border: 1px solid var(--border); margin-bottom: 5px; border-radius: 8px; overflow: hidden; }
+    summary.category-title { padding: 12px; background: var(--panel); cursor: pointer; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    summary.category-title::after { content: '▼'; font-size: 0.7rem; color: var(--accent); }
+    details[open] summary.category-title::after { content: '▲'; }
+    .margin-badge { padding: 8px 12px; border-radius: 6px; display: inline-block; margin-top: 10px; font-weight: 700; font-size: 0.9rem; }
+    .margin-badge.low { background: #ffd6d6; color: var(--neg); }
+    .margin-badge.high { background: #d6ffd6; color: var(--pos); }
+
+    .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:15px;margin-top:15px;}
+    .day-box{background:white;padding:16px 12px;border-radius:10px;text-align:center;border:1px solid var(--border);}
+    .day-box label{display:block;margin-bottom:5px;color:var(--accent);}
+    .svc-card{border-left:4px solid var(--wella-gold);background:white;padding:30px;padding-top:60px;border-radius:12px;margin-bottom:20px;position:relative;}
+    .btn-del-svc{position:absolute;top:15px;right:15px;background:var(--neg);color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:10px;}
+    .table-kit{width:100%;margin-top:15px;border-collapse:collapse;font-size:12px;}
+    .table-kit th{text-align:left;color:var(--text);background:var(--panel);padding:14px 12px;border-bottom:2px solid var(--border);font-weight:700;text-transform:uppercase;font-size:0.75rem;}
+    .table-kit td{padding:12px;border-bottom:1px solid var(--border);background:white;}
+    .res-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--border);gap:12px;}
+    .val{font-weight:700;font-family:'Courier New',monospace;font-size:16px;}
+    .val-big{font-size:32px;display:block;margin-top:5px;font-weight:800;font-family:'Playfair Display',serif;color:var(--wella-dark);}
+    .pos{color:var(--pos);} .neg{color:var(--neg);} .warn{color:var(--warn);}
+    .btn{padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;border:none;transition:0.3s;font-family:'Inter',sans-serif;}
+    .btn-add{background:var(--wella-gold);color:var(--wella-dark);}
+    .btn-ghost{background:white;color:var(--text);border:2px solid var(--border);}
+    .chart-container{position:relative;height:250px;width:100%;margin:20px 0;}
+    .table-compras{width:100%;border-collapse:collapse;font-size:12px;margin-top:15px;background:var(--panel);border-radius:10px;overflow:hidden;}
+    .table-compras th{background:#1f2937;padding:12px;color:white;text-align:left;}
+    .table-compras td{padding:10px;border-bottom:1px solid var(--border);}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:999px;background:rgba(3,7,18,.6);font-size:12px;color:var(--muted);}
+    .topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:8px;}
+    .subtle{font-size:12px;color:var(--muted);}
+
+    .tooltip-icon{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--muted);color:var(--bg);text-align:center;line-height:16px;font-size:11px;cursor:help;margin-left:5px;}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(26,26,26,0.85);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;overflow-y:auto;padding:20px;}
+    .modal.show{display:flex;}
+    .modal-content{background:white;border:1px solid var(--border);border-radius:16px;padding:40px;max-width:900px;width:90%;max-height:85vh;overflow-y:auto;margin:auto;}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+    .modal-close{background:none;border:none;color:var(--text);font-size:24px;cursor:pointer;}
+    
+    .product-library{max-height:450px;overflow-y:auto; padding-right: 5px;}
+    .product-item{display:flex;justify-content:space-between;align-items:center;padding:12px;background:white;border-bottom:1px solid var(--panel);cursor:pointer;transition:0.2s;}
+    .product-item:hover{background:var(--panel);}
+    .product-info{flex:1;}
+    .product-name{font-weight:600;font-size:13px; display:block;}
+    .product-specs{font-size:11px;color:var(--muted);margin-top:2px;}
+    .product-price{font-weight:700;color:var(--accent);font-size:14px;}
+
+    @media (max-width:1100px){.grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div>
+      <h1>Potencial Business Pro <span style="font-weight:300;opacity:.6;">v6.1</span></h1>
+      <div class="subtle"><b>Wella Professional Edition:</b> Inteligencia de negocio para el salón profesional</div>
+    </div>
+    <div class="pill" id="modePill">Modo: Consultoría + G3</div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div id="scenarioTabs" style="display:flex;gap:10px;"></div>
+      <button class="btn btn-add" style="padding:8px 16px; font-size:12px;" onclick="addScenario()">+ Nuevo Escenario</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="inputs">
+      <div class="card">
+        <h2>0. Configuración</h2>
+        <div class="formGrid">
+          <div class="field">
+            <label>Ocupación (%) <span class="tooltip-icon" data-tip="Capacidad utilizada del salón">?</span></label>
+            <input type="number" id="ocupacion" value="85" min="0" max="150">
+          </div>
+          <div class="field">
+            <label>Política Mix de Servicios</label>
+            <select id="mixPolicy" onchange="scheduleCalc()">
+              <option value="warn" selected>Solo advertir</option>
+              <option value="normalize">Normalizar al 100%</option>
+            </select>
+          </div>
+        </div>
+        <div id="mixErrorArea"></div>
+        <div class="row-actions" style="margin-top:20px; display:flex; gap:10px;">
+          <button class="btn btn-ghost" onclick="openGoalsModal()">🎯 Objetivos</button>
+          <button class="btn btn-ghost" onclick="resetAll()">🔄 Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>1. Capacidad Instalada</h2>
+        <div class="formGrid">
+          <div class="field"><label>Puestos</label><input type="number" id="puestos" value="2"></div>
+          <div class="field"><label>Servicios/Puesto/Día</label><input type="number" id="servDia" value="3" step="0.1"></div>
+          <div class="field"><label>TC (USD/UYU)</label><input type="number" id="tc" value="39.5" step="0.1"></div>
+        </div>
+        <div class="days-grid" id="daysRow"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+          <h2>2. Menú de Servicios</h2>
+          <button class="btn btn-add" onclick="openPresetsModal()">📦 Presets Wella</button>
+        </div>
+        <div id="serviciosList"></div>
+      </div>
+
+      <div class="card">
+        <h2>3. Gastos e Impuestos</h2>
+        <div class="formGrid">
+          <div class="field"><label>Gastos Fijos (Mes)</label><input type="number" id="gFijos" value="35000"></div>
+          <div class="field"><label>Sueldo Base FTE</label><input type="number" id="sueldo" value="40000"></div>
+          <div class="field"><label>Cant. FTEs</label><input type="number" id="ftes" value="2"></div>
+          <div class="field"><label>IVA Ventas (%)</label><input type="number" id="iva" value="22"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="outputs">
+      <div id="panel-resultados" class="card" style="position:sticky;top:20px; border-top:5px solid var(--accent);">
+        <h2>Resultados Mensuales</h2>
+        <div id="resSummary"></div>
+        <div class="chart-container"><canvas id="marginChart"></canvas></div>
+        
+        <hr style="border:0;border-top:1px solid var(--border);margin:25px 0;">
+        <h3>Sugerencia de Compras (Sell-In)</h3>
+        <div id="resCompras"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="editPresetModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Configurar Servicio</h3>
+      <button class="modal-close" onclick="closeEditPresetModal()">×</button>
+    </div>
+    <div class="formGrid">
+      <div class="field"><label>Nombre</label><input type="text" id="editPresetName"></div>
+      <div class="field"><label>% Mix</label><input type="number" id="editPresetPeso"></div>
+      <div class="field"><label>Precio Venta (UYU)</label><input type="number" id="editPresetTicket" oninput="updateLiveServiceMargin()"></div>
+    </div>
+    
+    <div id="live-margin-display"></div>
+
+    <div style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <label>Insumos Seleccionados</label>
+        <button class="btn btn-ghost" style="padding:5px 10px; font-size:11px;" onclick="openProductsModal()">+ Añadir Producto</button>
+      </div>
+      <div id="editPresetProductsList" class="card" style="padding:15px; background:var(--panel);"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+      <button class="btn btn-ghost" onclick="closeEditPresetModal()">Cancelar</button>
+      <button class="btn btn-add" onclick="saveEditedPreset()">Guardar Servicio</button>
+    </div>
+  </div>
+</div>
+
+<div id="productsModal" class="modal">
+  <div class="modal-content" style="max-width:600px;">
+    <div class="modal-header">
+      <h3>Biblioteca Wella</h3>
+      <button class="modal-close" onclick="closeProductsModal()">×</button>
+    </div>
+    <input type="text" id="productSearch" placeholder="Buscar por nombre o marca..." 
+           style="width:100%;margin-bottom:15px;" oninput="renderProductLibrary(this.value)">
+    <div class="product-library" id="productsContainer"></div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   Lógica y Datos
+   ========================= */
+
+const PRODUCT_LIBRARY = [
+  {cat:"Coloración", brand:"Illumina", n:"Illumina Color 60g", p:60, pr:580, uso:30},
+  {cat:"Coloración", brand:"Color Perfect", n:"Color Perfect 60g", p:60, pr:475, uso:30},
+  {cat:"Coloración", brand:"Color Touch", n:"Color Touch 60g", p:60, pr:450, uso:30},
+  {cat:"Oxidantes", brand:"Welloxon", n:"Welloxon Perfect 6% 1L", p:1000, pr:1100, uso:60},
+  {cat:"Oxidantes", brand:"Color Touch", n:"Emulsión CT 1.9% 1L", p:1000, pr:1050, uso:60},
+  {cat:"Decoloración", brand:"Blondor", n:"Blondor Multi Blonde 800g", p:800, pr:2400, uso:30},
+  {cat:"Cuidado", brand:"Invigo", n:"Shampoo Brilliance 1L", p:1000, pr:1200, uso:10},
+  {cat:"Cuidado", brand:"Invigo", n:"Conditioner Brilliance 1L", p:1000, pr:1350, uso:10}
+];
+
+let state = {
+  servicios: [],
+  dias: [true,true,true,true,true,true,false] // L-D
+};
+
+let currentEditingId = null;
+
+/* MEJORA: Auto-guardado */
+function attachAutoSave() {
+    document.addEventListener('blur', (e) => {
+        if (['INPUT', 'SELECT'].includes(e.target.tagName)) {
+            saveToLS();
+            scheduleCalc();
+        }
+    }, true);
+}
+
+function saveToLS() {
+    localStorage.setItem('pbp_v61_state', JSON.stringify(state));
+}
+
+/* MEJORA: Validación de Mix */
+function validarMixServicios() {
+    const totalMix = state.servicios.reduce((acc, s) => acc + (parseFloat(s.mix) || 0), 0);
+    const resultPanel = document.getElementById('panel-resultados');
+    const errorArea = document.getElementById('mixErrorArea');
+
+    if (state.servicios.length > 0 && Math.abs(totalMix - 100) > 0.1) {
+        resultPanel.style.opacity = "0.3";
+        resultPanel.style.pointerEvents = "none";
+        errorArea.innerHTML = `<div class="error-pill">⚠️ Mix actual: ${totalMix.toFixed(1)}%. Ajuste a 100% para ver resultados.</div>`;
+    } else {
+        resultPanel.style.opacity = "1";
+        resultPanel.style.pointerEvents = "auto";
+        errorArea.innerHTML = "";
+    }
+}
+
+/* MEJORA: Margen en Tiempo Real */
+function updateLiveServiceMargin() {
+    const precioVenta = parseFloat(document.getElementById('editPresetTicket').value) || 0;
+    const tempService = state.servicios.find(s => s.id === currentEditingId);
+    if(!tempService) return;
+
+    const costoInsumos = tempService.insumos.reduce((acc, i) => acc + (i.pr * i.u / i.p), 0);
+    const margen = precioVenta - costoInsumos;
+    const porcentaje = precioVenta > 0 ? (margen / precioVenta * 100) : 0;
+
+    const display = document.getElementById('live-margin-display');
+    display.innerHTML = `
+        <div class="margin-badge ${porcentaje < 40 ? 'low' : 'high'}">
+            Rentabilidad Estimada: $${margen.toFixed(0)} (${porcentaje.toFixed(1)}%)
+        </div>
+    `;
+}
+
+/* MEJORA: Biblioteca Colapsable */
+function renderProductLibrary(filter = '') {
+    const container = document.getElementById('productsContainer');
+    const filtered = PRODUCT_LIBRARY.filter(p => p.n.toLowerCase().includes(filter.toLowerCase()) || p.brand.toLowerCase().includes(filter.toLowerCase()));
+    
+    const groups = filtered.reduce((acc, p) => {
+        (acc[p.cat] = acc[p.cat] || []).push(p);
+        return acc;
+    }, {});
+
+    container.innerHTML = Object.keys(groups).map(cat => `
+        <details class="product-category" open>
+            <summary class="category-title">${cat} <span>${groups[cat].length}</span></summary>
+            ${groups[cat].map(p => `
+                <div class="product-item" onclick="addProductToEdit('${p.n}')">
+                    <div class="product-info">
+                        <span class="product-name">${p.n}</span>
+                        <span class="product-specs">${p.brand} | ${p.p}g/ml</span>
+                    </div>
+                    <div class="product-price">$${p.pr}</div>
+                </div>
+            `).join('')}
+        </details>
+    `).join('');
+}
+
+/* MEJORA: Redondeo en Compras (Sell-In) */
+function renderCompras(servicios, totalServiciosMes) {
+    const comprasRaw = {};
+    servicios.forEach(s => {
+        const cantSrvMes = totalServiciosMes * (s.mix / 100);
+        s.insumos.forEach(i => {
+            if(!comprasRaw[i.n]) comprasRaw[i.n] = { ...i, usoTotal: 0 };
+            comprasRaw[i.n].usoTotal += (i.u * cantSrvMes);
+        });
+    });
+
+    let html = `<table class="table-compras">
+        <thead><tr><th>Producto</th><th>Uso Teórico</th><th>Unidades Reales</th><th>Inversión</th></tr></thead>
+        <tbody>`;
+    
+    Object.values(comprasRaw).forEach(p => {
+        const unidadesRedondeadas = Math.ceil(p.usoTotal / p.p); // Redondeo hacia arriba
+        const inversion = unidadesRedondeadas * p.pr;
+        html += `<tr>
+            <td>${p.n}</td>
+            <td>${p.usoTotal.toFixed(0)} ${p.p>=1000?'ml':'g'}</td>
+            <td style="font-weight:700; color:var(--accent)">${unidadesRedondeadas} u.</td>
+            <td>$${inversion.toLocaleString()}</td>
+        </tr>`;
+    });
+    
+    html += `</tbody></table>`;
+    document.getElementById('resCompras').innerHTML = html;
+}
+
+/* --- Funciones Auxiliares UI --- */
+function openPresetsModal() {
+    const newId = Date.now().toString();
+    state.servicios.push({ id: newId, nombre: "Nuevo Servicio", mix: 0, ticket: 0, insumos: [] });
+    openEditModal(newId);
+}
+
+function openEditModal(id) {
+    currentEditingId = id;
+    const s = state.servicios.find(x => x.id === id);
+    document.getElementById('editPresetName').value = s.nombre;
+    document.getElementById('editPresetPeso').value = s.mix;
+    document.getElementById('editPresetTicket').value = s.ticket;
+    renderEditInsumos();
+    updateLiveServiceMargin();
+    document.getElementById('editPresetModal').classList.add('show');
+}
+
+function closeEditPresetModal() {
+    document.getElementById('editPresetModal').classList.remove('show');
+    scheduleCalc();
+}
+
+function renderEditInsumos() {
+    const s = state.servicios.find(x => x.id === currentEditingId);
+    const list = document.getElementById('editPresetProductsList');
+    list.innerHTML = s.insumos.map((i, idx) => `
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+            <span style="font-size:12px;">${i.n}</span>
+            <div style="display:flex; gap:5px; align-items:center;">
+                <input type="number" value="${i.u}" style="width:50px; padding:4px;" onchange="updateInsumoU(${idx}, this.value)">
+                <span style="font-size:10px;">g/ml</span>
+                <button onclick="removeInsumo(${idx})" style="background:none; border:none; color:red; cursor:pointer;">✕</button>
+            </div>
+        </div>
+    `).join('') || '<p style="font-size:11px; color:gray;">No hay insumos. Añade productos de la biblioteca.</p>';
+}
+
+function addProductToEdit(name) {
+    const p = PRODUCT_LIBRARY.find(x => x.n === name);
+    const s = state.servicios.find(x => x.id === currentEditingId);
+    s.insumos.push({ n: p.n, p: p.p, pr: p.pr, u: p.uso });
+    renderEditInsumos();
+    updateLiveServiceMargin();
+    closeProductsModal();
+}
+
+function updateInsumoU(idx, val) {
+    state.servicios.find(x => x.id === currentEditingId).insumos[idx].u = parseFloat(val);
+    updateLiveServiceMargin();
+}
+
+function removeInsumo(idx) {
+    state.servicios.find(x => x.id === currentEditingId).insumos.splice(idx, 1);
+    renderEditInsumos();
+    updateLiveServiceMargin();
+}
+
+function openProductsModal() {
+    renderProductLibrary();
+    document.getElementById('productsModal').classList.add('show');
+}
+
+function closeProductsModal() {
+    document.getElementById('productsModal').classList.remove('show');
+}
+
+function saveEditedPreset() {
+    const s = state.servicios.find(x => x.id === currentEditingId);
+    s.nombre = document.getElementById('editPresetName').value;
+    s.mix = parseFloat(document.getElementById('editPresetPeso').value) || 0;
+    s.ticket = parseFloat(document.getElementById('editPresetTicket').value) || 0;
+    closeEditPresetModal();
+    renderServicios();
+}
+
+function renderServicios() {
+    const list = document.getElementById('serviciosList');
+    list.innerHTML = state.servicios.map(s => `
+        <div class="svc-card">
+            <button class="btn-del-svc" onclick="deleteSrv('${s.id}')">Eliminar</button>
+            <div style="display:flex; justify-content:space-between;">
+                <h3>${s.nombre}</h3>
+                <button class="btn btn-ghost" style="padding:4px 8px; font-size:11px;" onclick="openEditModal('${s.id}')">Editar</button>
+            </div>
+            <p class="subtle">Mix: ${s.mix}% | Ticket: $${s.ticket.toLocaleString()}</p>
+        </div>
+    `).join('');
+}
+
+function deleteSrv(id) {
+    state.servicios = state.servicios.filter(s => s.id !== id);
+    renderServicios();
+    scheduleCalc();
+}
+
+/* --- Lógica de Cálculo Principal --- */
+function scheduleCalc() {
+    validarMixServicios();
+    const ocup = parseFloat(document.getElementById('ocupacion').value)/100;
+    const puestos = parseInt(document.getElementById('puestos').value);
+    const sDia = parseFloat(document.getElementById('servDia').value);
+    const diasActivos = state.dias.filter(d => d).length;
+    
+    const totalSrvMes = puestos * sDia * diasActivos * 4 * ocup;
+    
+    let ingresosBrutos = 0;
+    let costosInsumos = 0;
+
+    state.servicios.forEach(s => {
+        const cantMes = totalSrvMes * (s.mix/100);
+        ingresosBrutos += (cantMes * s.ticket);
+        s.insumos.forEach(i => {
+            costosInsumos += (cantMes * (i.u * i.pr / i.p));
+        });
+    });
+
+    const iva = parseFloat(document.getElementById('iva').value)/100;
+    const ventaNeta = ingresosBrutos / (1 + iva);
+    
+    // Gastos RRHH
+    const sueldoBase = parseFloat(document.getElementById('sueldo').value);
+    const numFtes = parseFloat(document.getElementById('ftes').value);
+    const gOperativos = parseFloat(document.getElementById('gFijos').value) + (sueldoBase * numFtes * 1.45); // +45% cargas
+    
+    const utilidad = ventaNeta - costosInsumos - gOperativos;
+
+    document.getElementById('resSummary').innerHTML = `
+        <div class="res-row"><span>Ingresos Brutos (con IVA)</span><span class="val">$${ingresosBrutos.toLocaleString()}</span></div>
+        <div class="res-row"><span>Venta Neta (Sin IVA)</span><span class="val">$${ventaNeta.toLocaleString()}</span></div>
+        <div class="res-row"><span>Costo Insumos Wella</span><span class="val neg">-$${costosInsumos.toLocaleString()}</span></div>
+        <div class="res-row"><span>Gastos Fijos + RRHH</span><span class="val neg">-$${gOperativos.toLocaleString()}</span></div>
+        <div style="margin-top:20px;">
+            <label>Utilidad Estimada</label>
+            <span class="val-big ${utilidad>0?'pos':'neg'}">$${utilidad.toLocaleString()}</span>
+        </div>
+    `;
+
+    renderCompras(state.servicios, totalSrvMes);
+}
+
+// Inicialización
+window.onload = () => {
+    const saved = localStorage.getItem('pbp_v61_state');
+    if(saved) state = JSON.parse(saved);
+    
+    const daysRow = document.getElementById('daysRow');
+    const n = ["L","M","M","J","V","S","D"];
+    daysRow.innerHTML = state.dias.map((d, i) => `
+        <div class="day-box" style="cursor:pointer; background:${d? 'var(--accent)':'white'}" onclick="toggleDay(${i})">
+            <label style="color:${d?'white':'var(--accent)'}">${n[i]}</label>
+        </div>
+    `).join('');
+
+    renderServicios();
+    scheduleCalc();
+    attachAutoSave();
+};
+
+function toggleDay(i) {
+    state.dias[i] = !state.dias[i];
+    location.reload(); // Simple refresh para redibujar
+    saveToLS();
+}
+
+function resetAll() { if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); } }
+</script>
+</body>
+</html>
