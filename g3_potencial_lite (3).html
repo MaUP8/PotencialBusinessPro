@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>G3 Potencial Lite — Wella Professional Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --bg:#ffffff; --card:#ffffff; --accent:#FF2000;
+      --text:#1A1A1A; --border:#D9D9D9;
+      --pos:#27AE60; --neg:#E74C3C; --warn:#F39C12;
+      --muted:#888888; --panel:#F3F3F3;
+      --wella-gold:#FF2000; --wella-dark:#000000;
+      --wella-red:#FF2000; --wella-core:#BA0C2F;
+    }
+    body{font-family:'Arial',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:#F3F3F3;color:var(--text);margin:0;padding:20px;line-height:1.6;}
+    .container{max-width:900px;margin:0 auto;}
+    .card{background:white;border:1px solid var(--border);border-radius:4px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:12px;}
+    @media (max-width:768px){
+      body{padding:10px;}
+      h1{font-size:1.6rem;}
+      .card{padding:16px;border-radius:10px;}
+      .formGrid{grid-template-columns:1fr !important;gap:14px;}
+      .days-grid{grid-template-columns:repeat(4,1fr) !important;gap:6px;}
+      .day-box{padding:8px 4px;}
+      .preset-grid{grid-template-columns:1fr !important;}
+      .modal{padding:6px;}
+      .modal-content{padding:16px;}
+    }
+    h1,h2,h3{color:var(--wella-dark);margin-top:0;letter-spacing:0;font-family:'Arial',sans-serif;font-weight:900;text-transform:uppercase;}
+    h1{font-size:2.2rem;}
+    h2{font-size:1.3rem;padding-bottom:10px;border-bottom:3px solid var(--wella-gold);margin-bottom:16px;letter-spacing:0.5px;}
+    h3{font-size:1.1rem;letter-spacing:0.3px;}
+    .formGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:10px;}
+    .field{display:flex;flex-direction:column;gap:8px;position:relative;}
+    label{font-size:0.70rem;color:#444444;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;font-family:'Arial',sans-serif;}
+    input,select{background:white;border:1.5px solid var(--border);color:var(--text);padding:10px 14px;border-radius:3px;outline:none;transition:0.2s;font-size:14px;font-family:'Arial',sans-serif;}
+    input:focus,select:focus{border-color:var(--wella-gold);box-shadow:0 0 0 3px rgba(255,32,0,0.12);}
+    input:hover,select:hover{border-color:var(--wella-gold);}
+    .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:12px;}
+    .day-box{background:white;padding:16px 12px;border-radius:10px;text-align:center;border:1px solid var(--border);}
+    .day-box label{display:block;margin-bottom:5px;color:var(--accent);}
+    .table-kit{width:100%;margin-top:15px;border-collapse:collapse;font-size:12px;}
+    .table-kit th{text-align:left;color:var(--text);background:var(--panel);padding:14px 12px;border-bottom:2px solid var(--border);font-weight:700;text-transform:uppercase;font-size:0.75rem;letter-spacing:0.5px;}
+    .table-kit td{padding:12px;border-bottom:1px solid var(--border);background:white;}
+    .table-kit tr:hover td{background:var(--panel);}
+    .table-kit input{width:90%;}
+    .res-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--border);gap:12px;}
+    .val{font-weight:700;font-family:'Courier New',monospace;font-size:16px;}
+    .val-big{font-size:32px;display:block;margin-top:5px;font-weight:900;font-family:'Arial Black','Arial',sans-serif;color:var(--wella-dark);}
+    .pos{color:var(--pos);} .neg{color:var(--neg);} .warn{color:var(--warn);}
+    .btn{padding:10px 20px;border-radius:4px;cursor:pointer;font-weight:700;border:none;transition:0.2s;font-family:'Arial',sans-serif;text-transform:uppercase;letter-spacing:0.5px;font-size:13px;}
+    .btn-add{background:var(--wella-gold);color:white;}
+    .btn-add:hover{background:#CC1900;transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,32,0,0.25);}
+    .btn-ghost{background:white;color:var(--text);border:2px solid var(--border);text-transform:uppercase;}
+    .btn-ghost:hover{background:var(--panel);border-color:var(--wella-gold);}
+    .btn-small{padding:8px 12px;font-size:12px;border-radius:8px;}
+    .chart-container{position:relative;height:250px;width:100%;margin:20px 0;}
+    .table-compras{width:100%;border-collapse:collapse;font-size:12px;margin-top:15px;background:var(--panel);border-radius:10px;overflow:hidden;}
+    .table-compras th{background:#000000;padding:12px;color:white;text-align:left;letter-spacing:0.3px;font-family:'Arial',sans-serif;}
+    .table-compras td{padding:10px;border-bottom:1px solid var(--border);}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:2px solid var(--wella-gold);border-radius:4px;background:var(--wella-gold);font-size:12px;color:#ffffff;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;font-family:'Arial',sans-serif;}
+    .topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:8px;}
+    .subtle{font-size:12px;color:#666;font-weight:500;}
+    .alert{border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.08);padding:10px 12px;border-radius:10px;color:#92400e;font-size:12px;margin:8px 0;}
+    .ok{border:1px solid rgba(16,185,129,.6);background:rgba(16,185,129,.15);padding:10px 12px;border-radius:10px;color:#065f46;font-size:12px;margin:8px 0;font-weight:600;}
+    .danger{border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.08);padding:10px 12px;border-radius:10px;color:#991b1b;font-size:12px;margin:8px 0;}
+    .info{border:1px solid rgba(0,0,0,0.15);background:rgba(0,0,0,0.04);padding:10px 12px;border-radius:4px;color:#1A1A1A;font-size:13px;margin:8px 0;font-weight:500;border-left:3px solid var(--wella-gold);}
+    .row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+
+    .tooltip-icon{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--muted);color:var(--bg);text-align:center;line-height:16px;font-size:11px;cursor:help;margin-left:5px;position:relative;}
+    .tooltip-icon:hover::after{content:attr(data-tip);position:absolute;background:var(--card);border:1px solid var(--border);padding:8px;border-radius:8px;font-size:11px;max-width:220px;width:max-content;z-index:1000;top:20px;left:50%;transform:translateX(-50%);}
+
+    /* G3 Badge styles */
+    .g3-badge{display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border-radius:12px;font-weight:800;font-size:1.1rem;letter-spacing:0.5px;margin:10px 0;}
+    .g3-grow1{background:linear-gradient(135deg,#166534,#15803d);color:#dcfce7;border:2px solid #16a34a;}
+    .g3-grow2{background:linear-gradient(135deg,#14532d,#166534);color:#bbf7d0;border:2px solid #22c55e;}
+    .g3-retain{background:linear-gradient(135deg,#1e3a5f,#1d4ed8);color:#dbeafe;border:2px solid #3b82f6;}
+    .g3-gain1{background:linear-gradient(135deg,#7c2d12,#c2410c);color:#ffedd5;border:2px solid #f97316;}
+    .g3-gain2{background:linear-gradient(135deg,#78350f,#d97706);color:#fef3c7;border:2px solid #f59e0b;}
+    .g3-low{background:linear-gradient(135deg,#374151,#4b5563);color:#f3f4f6;border:2px solid #6b7280;}
+    .g3-unknown{background:var(--panel);color:var(--muted);border:2px dashed var(--border);}
+    .penetracion-bar{height:12px;background:var(--border);border-radius:6px;overflow:hidden;margin:8px 0;}
+    .penetracion-fill{height:100%;border-radius:6px;transition:width 0.5s ease;}
+
+    /* Service accordion */
+    #serviciosList{border:1px solid var(--border);border-radius:12px;overflow:visible;}
+    .svc-card{border-left:4px solid var(--wella-gold);background:white;position:relative;border-bottom:1px solid var(--border);}
+    .svc-card:first-child{border-radius:12px 12px 0 0;}
+    .svc-card:last-child{border-radius:0 0 12px 12px;border-bottom:none;}
+    .svc-card:only-child{border-radius:12px;}
+    .svc-header{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;transition:background 0.15s;}
+    .svc-header:hover{background:var(--panel);}
+    .svc-chevron{font-size:0.75rem;color:var(--muted);transition:transform 0.25s;flex-shrink:0;}
+    .svc-card.open .svc-chevron{transform:rotate(180deg);}
+    .svc-header-info{flex:1;min-width:0;}
+    .svc-header-name{font-weight:700;font-size:0.9rem;color:var(--wella-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .svc-header-meta{font-size:0.72rem;color:var(--muted);margin-top:1px;}
+    .svc-header-badges{display:flex;gap:6px;flex-shrink:0;align-items:center;}
+    .svc-pct-badge{background:var(--wella-gold);color:white;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:800;}
+    .svc-body{padding:14px 18px 16px;border-top:1px solid var(--border);background:#fafafa;}
+    .svc-body-inner{padding-top:10px;}
+    .svc-actions{position:relative;flex-shrink:0;}
+    .svc-menu-btn{background:white;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:1.1rem;transition:0.2s;color:var(--muted);width:32px;height:32px;display:flex;align-items:center;justify-content:center;line-height:1;}
+    .svc-menu-btn:hover{background:var(--panel);border-color:var(--wella-gold);color:var(--text);}
+    .svc-dropdown{position:fixed;background:white;border:1.5px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:148px;display:none;z-index:9000;}
+    .svc-dropdown.show{display:block;animation:dropdownFadeIn 0.13s ease;}
+    .svc-dropdown-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;align-items:center;gap:8px;font-weight:500;transition:background 0.12s;}
+    .svc-dropdown-item:last-child{border-bottom:none;}
+    .svc-dropdown-item:hover{background:var(--panel);}
+    .svc-dropdown-item.danger{color:var(--neg);}
+    .svc-dropdown-item.danger:hover{background:rgba(220,38,38,0.06);}
+    @keyframes dropdownFadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+
+    .section-collapse-btn{background:none;border:none;cursor:pointer;color:var(--wella-gold);font-size:1rem;padding:0 4px;line-height:1;transition:transform 0.25s;}
+    .section-collapsed .section-collapsible{display:none;}
+    .section-collapsed .section-collapse-btn{transform:rotate(-90deg);}
+
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(26,26,26,0.85);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;overflow-y:auto;padding:20px;}
+    .modal.show{display:flex;}
+    .modal-content{background:white;border:1px solid var(--border);border-radius:4px;padding:40px;max-width:900px;width:90%;max-height:85vh;overflow-y:auto;margin:auto;box-shadow:0 8px 32px rgba(0,0,0,0.18);}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+    .modal-close{background:none;border:none;color:var(--text);font-size:24px;cursor:pointer;padding:0;line-height:1;}
+
+    .preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:25px;margin-top:20px;}
+    .preset-card{background:white;border:2px solid var(--border);border-radius:12px;padding:24px;cursor:pointer;transition:0.3s;}
+    .preset-card:hover{border-color:var(--wella-gold);box-shadow:0 4px 16px rgba(255,32,0,0.15);}
+    .preset-card h4{margin:0 0 12px 0;color:var(--wella-dark);font-size:1.1rem;font-family:'Arial',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;line-height:1.3;}
+    .preset-card .preset-details{font-size:0.9rem;color:var(--muted);line-height:1.7;}
+
+    .product-library{max-height:400px;overflow-y:auto;}
+    .product-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:0.2s;}
+    .product-item:hover{background:var(--border);}
+    .product-info{flex:1;}
+    .product-name{font-weight:600;font-size:13px;}
+    .product-specs{font-size:11px;color:var(--muted);margin-top:3px;}
+    .product-price{font-weight:700;color:var(--accent);font-size:14px;}
+
+    .preset-edit-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;}
+    .preset-products-list{max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:10px;background:var(--panel);}
+    .preset-product-row{display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px dashed var(--border);}
+    .preset-product-inputs{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;flex:1;margin-right:10px;}
+    .preset-product-inputs input{padding:6px;font-size:12px;}
+
+    .category-accordion{margin-bottom:15px;border:2px solid var(--border);border-radius:10px;overflow:hidden;}
+    .category-header{background:var(--panel);padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:0.2s;}
+    .category-header:hover{background:#ececec;}
+    .category-header h4{margin:0;font-size:0.9rem;color:var(--wella-dark);font-family:'Arial',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;}
+    .category-count{font-size:0.8rem;color:var(--muted);background:white;padding:4px 12px;border-radius:15px;font-weight:600;}
+    .category-icon{font-size:0.9rem;color:var(--wella-gold);font-weight:700;}
+    .category-content{padding:15px;background:white;}
+
+    /* Seasonality grid */
+    .season-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0;}
+    @media(max-width:768px){.season-grid{grid-template-columns:repeat(4,1fr);}}
+    .season-cell{text-align:center;padding:6px 4px;border-radius:8px;border:1px solid var(--border);background:white;transition:0.2s;}
+    .season-cell label{display:block;font-size:0.65rem;color:var(--accent);margin-bottom:3px;font-weight:700;}
+    .season-cell input{width:100%;text-align:center;padding:4px 2px;border:1.5px solid var(--border);border-radius:5px;font-size:13px;font-family:'Arial',sans-serif;}
+    .season-cell input:focus{border-color:var(--wella-gold);outline:none;box-shadow:0 0 0 2px rgba(255,32,0,0.12);}
+    .season-presets{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;}
+    .season-preset-btn{padding:5px 12px;font-size:11px;border:1.5px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-family:'Arial',sans-serif;font-weight:600;transition:0.2s;color:var(--text);}
+    .season-preset-btn:hover{border-color:var(--wella-gold);background:var(--panel);}
+
+    .save-indicator{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--pos);color:white;padding:12px 24px;border-radius:30px;font-size:0.9rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.2);opacity:0;transition:all 0.3s ease;z-index:10000;}
+    .save-indicator.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    /* Seasonality grid */
+    .season-cell{text-align:center;padding:6px 4px;border-radius:8px;border:1px solid var(--border);background:white;transition:0.2s;}
+    .season-cell label{display:block;font-size:0.65rem;color:var(--accent);margin-bottom:3px;font-weight:700;}
+    .season-cell input{width:100%;text-align:center;padding:4px 2px;border:1.5px solid var(--border);border-radius:5px;font-size:13px;font-family:'Arial',sans-serif;box-sizing:border-box;}
+    .season-cell input:focus{border-color:var(--wella-gold);outline:none;box-shadow:0 0 0 2px rgba(255,32,0,0.12);}
+    @media(max-width:768px){#seasonGrid{grid-template-columns:repeat(4,1fr) !important;}}
+
+    @media print{
+      body{background:white;padding:0;}
+      .btn,.row-actions,.modal{display:none !important;}
+      .card{break-inside:avoid;box-shadow:none;border:1px solid #ddd;}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar" style="align-items:center;">
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+      <img src="data:image/png;base64,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" alt="Wella Professionals" style="height:50px;flex-shrink:0;">
+      <div>
+        <h1 style="margin-bottom:0;">G3 Potencial Lite</h1>
+        <p class="subtle" style="margin-top:2px;">Potencial de servicios & Sell-In</p>
+      </div>
+    </div>
+    <div class="pill" id="modePill">—</div>
+  </div>
+
+  <!-- INPUTS -->
+  <div class="inputs">
+    <div class="card">
+      <h2>Datos del Salón & G3</h2>
+      <div class="formGrid">
+        <div class="field"><label>Nombre del Salón</label><input type="text" id="salonName" placeholder="Ej: Studio Elegance"></div>
+        <div class="field"><label>Zona</label><input type="text" id="salonZone" placeholder="Ej: Pocitos, Mvd"></div>
+        <div class="field"><label>Representante</label><input type="text" id="repName" placeholder="Nombre"></div>
+      </div>
+      <div class="formGrid" style="margin-top:10px;">
+        <div class="field">
+          <label>¿Compró en el último año? <span class="tooltip-icon" data-tip="Si compró en 2025 es cliente GROW. Si no compró pero compra en 2026 es GAIN.">?</span></label>
+          <select id="g3Activo">
+            <option value="">— Seleccionar —</option>
+            <option value="si">Sí — cliente activo (GROW)</option>
+            <option value="no">No — prospecto (GAIN)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>FTE Estilistas (productivos) <span class="tooltip-icon" data-tip="Estilistas que producen servicios en el salón. Determina el potencial y la clasificación G3: 0-2 = Low Priority, >2 = G2, >5 = G1.">?</span></label>
+          <input type="number" id="g3Ftes" value="" min="0" step="1" placeholder="Ej: 3">
+        </div>
+        <div class="field">
+          <label>Ocupación (%)</label>
+          <input type="number" id="ocupacion" value="85" min="0" max="100">
+        </div>
+        <div class="field">
+          <label>% Merma estimada <span class="tooltip-icon" data-tip="Incremento sobre el consumo teórico por desperdicios, pruebas, errores de mezcla. Rango razonable: 5-15%.">?</span></label>
+          <input type="number" id="g3Merma" value="" min="0" max="30" step="1" placeholder="Ej: 7 (opcional)">
+        </div>
+        <div class="field" id="fieldCompraActual">
+          <label>Compra actual Wella (UYU/año)</label>
+          <input type="number" id="g3CompraActual" value="" min="0" step="1000" placeholder="Dato real del cliente">
+          <div id="compraActualNote" style="display:none;font-size:11px;color:#f87171;margin-top:4px;">⚠ Cliente GAIN — sin historial de compra Wella.</div>
+        </div>
+        <div class="field">
+          <label>Cotización USD</label>
+          <input type="number" id="tc" value="39.5" step="0.1">
+        </div>
+      </div>
+      <div class="formGrid" style="margin-top:10px;">
+        <div class="field">
+          <label>Normalizar mix a 100%</label>
+          <select id="mixPolicy">
+            <option value="warn" selected>Advertir (no tocar)</option>
+            <option value="normalize">Normalizar automático</option>
+          </select>
+        </div>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-ghost btn-small" onclick="exportPDF()">📄 Exportar PDF</button>
+        <button class="btn btn-ghost btn-small" onclick="resetAll()">🔄 Reset</button>
+      </div>
+      <div id="mixWarning" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>1. Operación del Salón</h2>
+      <div class="formGrid">
+        <div class="field"><label>Semanas/Año</label><input type="number" id="weeks" value="48"></div>
+        <div class="field">
+          <label>Horas/Día abierto</label>
+          <input type="number" id="horasDia" value="8" step="0.5" min="1" max="16">
+        </div>
+        <div class="field">
+          <label>IVA Ventas (%)</label>
+          <input type="number" id="iva" value="22">
+        </div>
+      </div>
+      <div class="days-grid" id="daysRow"></div>
+
+      <!-- Estacionalidad -->
+      <div style="margin-top:14px;padding:12px 14px;border:1.5px dashed var(--border);border-radius:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <label style="margin:0;font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--wella-gold);">
+            📅 Estacionalidad mensual
+            <span class="tooltip-icon" data-tip="Factor de actividad por mes (%). 100% = mes normal. Valores mayores = meses fuertes, menores = meses flojos. El promedio modula el cálculo anual.">?</span>
+          </label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:12px;color:var(--muted);">Desactivada</span>
+            <label style="position:relative;display:inline-block;width:44px;height:24px;margin:0;cursor:pointer;">
+              <input type="checkbox" id="estacionalidadToggle" onchange="toggleEstacionalidad()" style="opacity:0;width:0;height:0;">
+              <span style="position:absolute;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:24px;transition:0.3s;"></span>
+              <span id="estacionalidadKnob" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
+            </label>
+            <span style="font-size:12px;color:var(--muted);">Activada</span>
+          </div>
+        </div>
+        <div id="estacionalidadPanel" style="display:none;">
+          <div class="season-presets" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;">
+            <button class="btn btn-ghost btn-small" onclick="applySeasonPreset('flat')">Plano (100%)</button>
+            <button class="btn btn-ghost btn-small" onclick="applySeasonPreset('summer')">🌞 Verano fuerte</button>
+            <button class="btn btn-ghost btn-small" onclick="applySeasonPreset('winter')">❄️ Invierno fuerte</button>
+            <button class="btn btn-ghost btn-small" onclick="applySeasonPreset('fiestas')">🎄 Fiestas</button>
+            <button class="btn btn-ghost btn-small" onclick="applySeasonPreset('turismo')">🏖️ Zona turística</button>
+          </div>
+          <div id="seasonGrid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0;"></div>
+          <div id="seasonSummary" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="secServicios">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="section-collapse-btn" onclick="toggleSeccion2()" title="Colapsar sección">▼</button>
+          <h2 style="margin:0;padding:0;border:none;">2. Servicios & Estructura de Kits</h2>
+        </div>
+        <div class="section-collapsible" style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-small" onclick="openPresetsModal()">📦 Presets Wella</button>
+          <button class="btn btn-add" onclick="addServicio()">+ Servicio Vacío</button>
+        </div>
+      </div>
+      <div class="section-collapsible" id="serviciosList"></div>
+    </div>
+  </div>
+
+  <!-- Separator -->
+  <div style="display:flex;align-items:center;gap:12px;margin:8px 0 4px;">
+    <div style="flex:1;height:2px;background:var(--border);border-radius:2px;"></div>
+    <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Resultados</span>
+    <div style="flex:1;height:2px;background:var(--border);border-radius:2px;"></div>
+  </div>
+
+  <!-- OUTPUTS -->
+  <div class="outputs" id="panelOutputs">
+    <div class="card" style="border-top:4px solid var(--accent);">
+      <h2 style="margin-bottom:12px;">Potencial de Servicios</h2>
+      <div id="resSummary"></div>
+    </div>
+
+    <!-- Estacionalidad mensual -->
+    <div class="card" id="seasonResults" style="display:none;">
+      <h3 style="margin-top:0;">📅 Proyección Mensual (Estacionalidad)</h3>
+      <div id="resEstacionalidad"></div>
+    </div>
+
+    <div class="card">
+      <div class="chart-container" style="height:220px;"><canvas id="distributionChart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">⬡ G3 — Clasificación & Potencial de Compra</h3>
+      <div id="resG3"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">📦 Compras al Proveedor (Sell-In)</h3>
+      <div id="resCompras"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">💰 Margen de Producto por Servicio</h3>
+      <p class="subtle" style="margin-top:-8px;margin-bottom:14px;">Ticket neto − costo de insumos (sin modelar gastos del salón)</p>
+      <div id="resMargenesProducto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Presets -->
+<div id="presetsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 style="margin:0;">📦 Presets de Servicios Wella</h3>
+      <button class="modal-close" onclick="closePresetsModal()">×</button>
+    </div>
+    <p class="subtle">Seleccioná un preset para editarlo antes de agregarlo</p>
+    <div class="preset-grid" id="presetsList"></div>
+  </div>
+</div>
+
+<!-- Modal Editar Preset -->
+<div id="editPresetModal" class="modal">
+  <div class="modal-content" style="max-width:800px;">
+    <div class="modal-header">
+      <h3 style="margin:0;">✏️ Personalizar Servicio</h3>
+      <button class="modal-close" onclick="closeEditPresetModal()">×</button>
+    </div>
+    <div>
+      <div class="preset-edit-inputs">
+        <div class="field"><label>Nombre del servicio</label><input type="text" id="editPresetName"></div>
+        <div class="field"><label>% Mix</label><input type="number" id="editPresetPeso" min="0" max="100"></div>
+        <div class="field"><label>Ticket Bruto (UYU)</label><input type="number" id="editPresetTicket" min="0"></div>
+        <div class="field"><label>Duración (min)</label><input type="number" id="editPresetDuracion" min="5"></div>
+      </div>
+      <h4 style="margin:10px 0;">Insumos del Kit</h4>
+      <div class="preset-products-list" id="editPresetProductsList"></div>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-small" onclick="addEditPresetProduct()">+ Insumo Manual</button>
+        <button class="btn btn-add btn-small" onclick="confirmEditPreset()">✓ Agregar al modelo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Biblioteca Productos -->
+<div id="productsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 style="margin:0;">🛍️ Biblioteca de Productos Wella</h3>
+      <button class="modal-close" onclick="closeProductsModal()">×</button>
+    </div>
+    <p class="subtle">Click en un producto para agregarlo al servicio actual</p>
+    <input type="text" id="productSearch" placeholder="Buscar producto..." style="width:100%;margin:15px 0;" oninput="filterProducts()">
+    <div class="product-library" id="productsList"></div>
+  </div>
+</div>
+
+<div class="save-indicator" id="saveIndicator">✓ Guardado</div>
+
+<script>
+/* ====================================================================
+   G3 POTENCIAL LITE — Motor de cálculo simplificado
+   Solo: servicios potenciales + sell-in + clasificación G3
+   Sin: rentabilidad del salón, RRHH, gastos fijos, break-even, ROI
+   ==================================================================== */
+
+/* ===================== URL PARAMS & DYNAMIC STORAGE ===================== */
+function getURLParams() {
+  const p = new URLSearchParams(window.location.search);
+  return {
+    id:     p.get('id')     || '',
+    salon:  p.get('salon')  || '',
+    ftes:   p.get('ftes')   || '',
+    rep:    p.get('rep')    || '',
+    ticket: p.get('ticket') || '',
+    zone:   p.get('zona')   || p.get('zone') || '',
+    activo: p.get('activo') || '',
+    compra: p.get('compra') || '',
+    ocup:   p.get('ocup')   || '',
+  };
+}
+
+const URL_PARAMS = getURLParams();
+const LS_KEY = URL_PARAMS.id ? ("g3_lite_" + URL_PARAMS.id) : "g3_lite_v1";
+const uid = () => crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now() + "_" + Math.random().toString(36).slice(2);
+const fmtUYU0 = (n) => { const v = Number(n)||0; return isFinite(v) ? v.toLocaleString('es-UY', {maximumFractionDigits:0}) : '—'; };
+const fmtPct = (n) => (Number(n)||0).toFixed(1) + '%';
+const clamp = (n, a, b) => Math.min(Math.max(n, a), b);
+
+let dChart;
+let currentServiceIdForProducts = null;
+let currentPresetEdit = null;
+
+// Biblioteca COMPLETA de productos Wella
+const PRODUCT_LIBRARY = [
+  {cat:'Coloración', n:'Illumina Color (coloración permanente)', p:60, pr:691.0, uso:15},
+  {cat:'Coloración', n:'Color Perfect (coloración permanente)', p:60, pr:586.0, uso:15},
+  {cat:'Coloración', n:'Shinefinity (coloración demi-permanente)', p:60, pr:691.0, uso:15},
+  {cat:'Coloración', n:'Color Touch (coloración semi-permanente)', p:60, pr:586.0, uso:15},
+  {cat:'Coloración', n:'Color Touch Plus (coloración semi-permanente)', p:60, pr:586.0, uso:15},
+  {cat:'Oxidantes', n:'Emulsión Color Touch 1,9% (6 vol.)', p:1000, pr:1103.0, uso:10},
+  {cat:'Oxidantes', n:'Emulsión Color Touch Intensiva 4% (13 vol.)', p:1000, pr:1103.0, uso:10},
+  {cat:'Oxidantes', n:'Activador Shinefinity %2 - botella', p:1000, pr:1103.0, uso:10},
+  {cat:'Oxidantes', n:'Activador Shinefinity %2 - pincel', p:1000, pr:1103.0, uso:10},
+  {cat:'Oxidantes', n:'Welloxon Perfect 6% (20 vol.)', p:1000, pr:1103.0, uso:60},
+  {cat:'Oxidantes', n:'Welloxon Perfect 9% (30 vol.)', p:1000, pr:1103.0, uso:60},
+  {cat:'Oxidantes', n:'Welloxon Perfect 12% (40 vol.)', p:1000, pr:1103.0, uso:60},
+  {cat:'Decolorantes', n:'Blondor Multi Powder 400g', p:400, pr:2878.0, uso:10},
+  {cat:'Decolorantes', n:'Blondor Multi Powder 800g', p:800, pr:4955.0, uso:10},
+  {cat:'Decolorantes', n:'Blondor Freelights dvlper 6%', p:100, pr:1252.0, uso:10},
+  {cat:'Decolorantes', n:'Blondor Plex 800g', p:800, pr:6731.0, uso:10},
+  {cat:'Decolorantes', n:'Blondor Plex 400g', p:400, pr:3419.0, uso:10},
+  {cat:'Tratamientos - Wellaplex', n:'Wellaplex Paso n3', p:100, pr:1347.0, uso:10},
+  {cat:'Tratamientos - Wellaplex', n:'Wellaplex Step 1 Bond Maker', p:500, pr:8611.0, uso:10},
+  {cat:'Tratamientos - Wellaplex', n:'Wellaplex Step 2 Bond Stabilizer', p:500, pr:4019.0, uso:10},
+  {cat:'Styling - EIMI', n:'EIMI MISTIFY ME Spray fijador suave 500ml', p:500, pr:1623.0, uso:10},
+  {cat:'Styling - EIMI', n:'EIMI SUPER SET Spray fijador fuerte 300ml', p:300, pr:1459.0, uso:10},
+  {cat:'Styling - EIMI', n:'EIMI GLAM MIST Spray de brillo 200ml', p:200, pr:1664.0, uso:10},
+  {cat:'Styling - EIMI', n:'EIMI NATURAL VOL Espuma modeladora suave 300ml', p:300, pr:1164.0, uso:10},
+  {cat:'Styling - EIMI', n:'EIMI THERMAL IMAGE Protector térmico 150ml', p:150, pr:814.0, uso:10},
+  {cat:'Tratamientos - Ultimate Repair', n:'ULTIMATE REPAIR Shampoo 250ml', p:250, pr:1138.0, uso:10},
+  {cat:'Tratamientos - Ultimate Repair', n:'ULTIMATE REPAIR Deep Conditioner 200ml', p:200, pr:1138.0, uso:10},
+  {cat:'Tratamientos - Ultimate Repair', n:'ULTIMATE REPAIR Shampoo 1000ml', p:1000, pr:2862.0, uso:10},
+  {cat:'Tratamientos - Ultimate Repair', n:'ULTIMATE REPAIR Miracle Hair 30ml', p:30, pr:752.0, uso:5},
+  {cat:'Tratamientos - Ultimate Repair', n:'ULTIMATE REPAIR Miracle Hair 95ml', p:95, pr:2270.0, uso:15},
+  {cat:'Tratamientos - Ultimate Repair', n:'ULTIMATE REPAIR Leave In 140ml', p:140, pr:1746.0, uso:10},
+  {cat:'Cuidado Capilar', n:'ULTIMATE REPAIR Máscara 150ml', p:150, pr:1453.0, uso:10},
+  {cat:'Cuidado Capilar', n:'ULTIMATE REPAIR Máscara 500ml', p:500, pr:3134.0, uso:10},
+  {cat:'Tratamientos - Fusion', n:'FUSION Shampoo 250ml', p:250, pr:997.0, uso:10},
+  {cat:'Tratamientos - Fusion', n:'FUSION Acondicionador 200ml', p:200, pr:997.0, uso:10},
+  {cat:'Tratamientos - Fusion', n:'FUSION Máscara 150ml', p:150, pr:1318.0, uso:10},
+  {cat:'Tratamientos - Fusion', n:'FUSION Shampoo 1000ml', p:1000, pr:2672.0, uso:10},
+  {cat:'Tratamientos - Fusion', n:'FUSION Máscara 500ml', p:500, pr:2397.0, uso:10},
+  {cat:'Tratamientos - Oil Reflections', n:'OIL REFLECTION Shampoo 250ml', p:250, pr:997.0, uso:10},
+  {cat:'Tratamientos - Oil Reflections', n:'OIL REFLECTION Acondicionador 200ml', p:200, pr:997.0, uso:10},
+  {cat:'Tratamientos - Oil Reflections', n:'OIL REFLECTION Máscara 150ml', p:150, pr:1318.0, uso:10},
+  {cat:'Tratamientos - Oil Reflections', n:'OIL REFLECTION Óleo reparador 100ml', p:100, pr:1865.0, uso:10},
+  {cat:'Tratamientos - Oil Reflections', n:'OIL REFLECTION Óleo reparador 30ml', p:30, pr:611.0, uso:5},
+  {cat:'Tratamientos - Nutricurls', n:'NUTRICURLS Shampoo 250ml', p:250, pr:997.0, uso:10},
+  {cat:'Tratamientos - Nutricurls', n:'NUTRICURLS Acondicionador 200ml', p:200, pr:997.0, uso:10},
+  {cat:'Tratamientos - Nutricurls', n:'NUTRICURLS Máscara 150ml', p:150, pr:1318.0, uso:10},
+  {cat:'Tratamientos - ColorMotion', n:'COLORMOTION Shampoo 250ml', p:250, pr:997.0, uso:10},
+  {cat:'Tratamientos - ColorMotion', n:'COLORMOTION Acondicionador 200ml', p:200, pr:997.0, uso:10},
+  {cat:'Tratamientos - ColorMotion', n:'COLORMOTION Máscara 150ml', p:150, pr:1318.0, uso:10},
+  {cat:'Tratamientos - Elements', n:'ELEMENTS Shampoo 250ml', p:250, pr:997.0, uso:10},
+  {cat:'Tratamientos - Elements', n:'ELEMENTS Acondicionador 200ml', p:200, pr:997.0, uso:10},
+  {cat:'Tratamientos - Elements', n:'ELEMENTS Máscara 150ml', p:150, pr:1318.0, uso:10},
+  {cat:'Sebastian', n:'DARK OIL Shampoo 250ml', p:250, pr:1138.0, uso:10},
+  {cat:'Sebastian', n:'DARK OIL Acondicionador 250ml', p:250, pr:1138.0, uso:10},
+  {cat:'Sebastian', n:'DARK OIL Serum 95ml', p:95, pr:2270.0, uso:10},
+  {cat:'Sebastian', n:'PENETRAITT Shampoo 250ml', p:250, pr:997.0, uso:10},
+  {cat:'Sebastian', n:'PENETRAITT Máscara 150ml', p:150, pr:1318.0, uso:10},
+  {cat:'Invigo', n:'INVIGO NutriEnrich Shampoo 250ml', p:250, pr:794.0, uso:10},
+  {cat:'Invigo', n:'INVIGO NutriEnrich Acondicionador 200ml', p:200, pr:794.0, uso:10},
+  {cat:'Invigo', n:'INVIGO NutriEnrich Máscara 150ml', p:150, pr:956.0, uso:10},
+  {cat:'Invigo', n:'INVIGO Brilliance Shampoo 250ml', p:250, pr:794.0, uso:10},
+  {cat:'Invigo', n:'INVIGO Brilliance Acondicionador 200ml', p:200, pr:794.0, uso:10},
+  {cat:'Invigo', n:'INVIGO Brilliance Máscara 150ml', p:150, pr:956.0, uso:10},
+  {cat:'Invigo', n:'INVIGO Blonde Recharge Shampoo 250ml', p:250, pr:794.0, uso:10},
+];
+
+// PRESETS oficiales Wella — SERVICE_PRESETS del original
+const PRESETS = [
+  {
+    id: 'color_global',
+    nombre: 'Color Global Wella',
+    descripcion: 'Coloración permanente raíz a puntas con lavado y tratamiento.',
+    peso: 15,
+    ticket: 2500,
+    duracion: 90,
+    insumos: [
+      {n:'Color Perfect (coloración permanente)', p:60, pr:586, u:60},
+      {n:'Welloxon Perfect 6 % (20 vol.) (Oxidante)', p:1000, pr:1103, u:60},
+      {n:'ULTIMATE REPAIR Shampoo', p:1000, pr:2862, u:5},
+      {n:'ULTIMATE REPAIR Máscara', p:500, pr:3134, u:15},
+    ]
+  },
+  {
+    id: 'balayage',
+    nombre: 'Balayage',
+    descripcion: 'Decoloración a mano alzada con matización y tratamiento.',
+    peso: 12,
+    ticket: 4500,
+    duracion: 180,
+    insumos: [
+      {n:'Blondor Multi Powder (Decolorante)', p:400, pr:2878, u:100},
+      {n:'Welloxon Perfect 9% (30 vol.) (Oxidante)', p:1000, pr:1103, u:150},
+      {n:'Wellaplex Step 2 Bond Stabilizer', p:500, pr:4019, u:10},
+      {n:'ULTIMATE REPAIR Shampoo', p:1000, pr:2862, u:10},
+      {n:'ULTIMATE REPAIR Máscara', p:500, pr:3134, u:10},
+      {n:'Illumina Color (coloración permanente)', p:60, pr:691, u:15},
+      {n:'Shinefinity (coloración demi-permanente)', p:60, pr:691, u:10},
+    ]
+  },
+  {
+    id: 'claritos',
+    nombre: 'Claritos',
+    descripcion: 'Mechas con papel aluminio, matización y tratamiento.',
+    peso: 10,
+    ticket: 3200,
+    duracion: 150,
+    insumos: [
+      {n:'Blondor Multi Powder (Decolorante)', p:400, pr:2878, u:100},
+      {n:'Welloxon Perfect 9% (30 vol.) (Oxidante)', p:1000, pr:1103, u:150},
+      {n:'Wellaplex Step 2 Bond Stabilizer', p:500, pr:4019, u:10},
+      {n:'ULTIMATE REPAIR Shampoo', p:1000, pr:2862, u:10},
+      {n:'ULTIMATE REPAIR Máscara', p:500, pr:3134, u:10},
+      {n:'Illumina Color (coloración permanente)', p:60, pr:691, u:15},
+    ]
+  },
+  {
+    id: 'decoloracion',
+    nombre: 'Decoloración Total',
+    descripcion: 'Decoloración completa con Wellaplex y matización final.',
+    peso: 8,
+    ticket: 4800,
+    duracion: 180,
+    insumos: [
+      {n:'Blondor Multi Powder (Decolorante)', p:400, pr:2878, u:100},
+      {n:'Welloxon Perfect 9% (30 vol.) (Oxidante)', p:1000, pr:1103, u:150},
+      {n:'Wellaplex Step 2 Bond Stabilizer', p:500, pr:4019, u:10},
+      {n:'ULTIMATE REPAIR Shampoo', p:1000, pr:2862, u:10},
+      {n:'ULTIMATE REPAIR Máscara', p:500, pr:3134, u:10},
+      {n:'Illumina Color (coloración permanente)', p:60, pr:691, u:15},
+    ]
+  },
+  {
+    id: 'reparacion',
+    nombre: 'Reparación de Color',
+    descripcion: 'Corrección de color con permanente + semi-permanente y Wellaplex.',
+    peso: 8,
+    ticket: 3500,
+    duracion: 120,
+    insumos: [
+      {n:'Color Perfect (coloración permanente)', p:60, pr:586, u:60},
+      {n:'Welloxon Perfect 6 % (20 vol.) (Oxidante)', p:1000, pr:1103, u:60},
+      {n:'Color Touch (coloración semi-permanente)', p:60, pr:586, u:15},
+      {n:'ULTIMATE REPAIR Shampoo', p:1000, pr:2862, u:10},
+      {n:'ULTIMATE REPAIR Máscara', p:500, pr:3134, u:10},
+      {n:'Wellaplex Paso n3', p:100, pr:1347, u:6},
+      {n:'Wellaplex Step 2 Bond Stabilizer', p:500, pr:4019, u:10},
+    ]
+  },
+  {
+    id: 'glossing',
+    nombre: 'Glossing',
+    descripcion: 'Tratamiento de brillo con Illumina y oxidante suave.',
+    peso: 10,
+    ticket: 1800,
+    duracion: 45,
+    insumos: [
+      {n:'Emulsión Color Touch 1,9% (6 vol.) (Oxidante)', p:1000, pr:1103, u:10},
+      {n:'ULTIMATE REPAIR Máscara', p:500, pr:3134, u:10},
+      {n:'Illumina Color (coloración permanente)', p:60, pr:691, u:10},
+    ]
+  },
+  {
+    id: 'bano_color',
+    nombre: 'Baño de Color',
+    descripcion: 'Refrescado de color con oxidante suave, lavado y máscara.',
+    peso: 12,
+    ticket: 2000,
+    duracion: 60,
+    insumos: [
+      {n:'ULTIMATE REPAIR Shampoo', p:1000, pr:2862, u:10},
+      {n:'Color Perfect (coloración permanente)', p:60, pr:586, u:20},
+      {n:'Emulsión Color Touch 1,9% (6 vol.) (Oxidante)', p:1000, pr:1103, u:20},
+      {n:'ULTIMATE REPAIR Shampoo', p:1000, pr:2862, u:5},
+      {n:'ULTIMATE REPAIR Máscara', p:500, pr:3134, u:5},
+    ]
+  },
+  {
+    id: 'fusion',
+    nombre: 'Hidratación Fusion',
+    descripcion: 'Tratamiento profundo Fusion para cabello muy dañado.',
+    peso: 8,
+    ticket: 1500,
+    duracion: 45,
+    insumos: [
+      {n:'FUSION Shampoo para cabello muy dañado', p:1000, pr:2672, u:10},
+      {n:'FUSION Prot. Ref. trat. profundo para cabello muy dañado*', p:70, pr:1556, u:10},
+      {n:'FUSION Máscara para cabello muy dañado', p:500, pr:2397, u:10},
+    ]
+  },
+  {
+    id: 'ultimate_repair',
+    nombre: 'Hidratación Ultimate Repair',
+    descripcion: 'Protocolo completo Ultimate Repair con Miracle Hair y Leave In.',
+    peso: 7,
+    ticket: 1800,
+    duracion: 45,
+    insumos: [
+      {n:'ULTIMATE REPAIR Shampoo', p:1000, pr:2862, u:10},
+      {n:'ULTIMATE REPAIR Máscara', p:500, pr:3134, u:10},
+      {n:'ULTIMATE REPAIR Miracle Hair*', p:30, pr:752, u:7},
+      {n:'ULTIMATE REPAIR Leave In*', p:140, pr:1746, u:3},
+    ]
+  },
+  {
+    id: 'ultimate_smooth',
+    nombre: 'Hidratación Ultimate Smooth',
+    descripcion: 'Protocolo alisado con Ultimate Smooth y Miracle Oil Serum.',
+    peso: 6,
+    ticket: 1600,
+    duracion: 45,
+    insumos: [
+      {n:'ULTIMATE SMOOTH Shampoo', p:1000, pr:2862, u:10},
+      {n:'ULTIMATE SMOOTH Máscara', p:500, pr:3134, u:10},
+      {n:'ULTIMATE SMOOTH Miracle Oil Serum*', p:100, pr:1865, u:3},
+    ]
+  },
+  {
+    id: 'oil_reflections',
+    nombre: 'Hidratación Oil Reflections',
+    descripcion: 'Tratamiento de luminosidad con Oil Reflections y serum intensivo.',
+    peso: 4,
+    ticket: 1700,
+    duracion: 45,
+    insumos: [
+      {n:'OIL REFLECTION Shampoo suavidad y luminosidad instantánea', p:1000, pr:2672, u:10},
+      {n:'OIL REFLECTION Máscara suavidad y luminosidad instantánea', p:500, pr:2397, u:10},
+      {n:'OIL REFLECTION Serum 10 x 6 ml trat. Intenso anti-frizz *', p:60, pr:2707, u:6},
+    ]
+  }
+];
+
+const diasNombres = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+// State
+let state = {
+  salonName:'', salonZone:'', repName:'',
+  g3Activo:'', g3Ftes:'', g3CompraActual:'', g3Merma:'',
+  ocupacion: 85,
+  mixPolicy: 'warn',
+  inputs: { weeks:48, horasDia:8, iva:22, tc:39.5 },
+  configDias: [0,1,1,1,1,1,0.5],
+  servicios: [],
+  estacionalidad: { activa: false, factores: [100,100,100,100,100,100,100,100,100,100,100,100] }
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(LS_KEY);
+    if (s) state = JSON.parse(s);
+  } catch(e) {}
+}
+
+function applyURLParams() {
+  const p = URL_PARAMS;
+  if (!p.id && !p.salon && !p.ftes && !p.rep && !p.ticket) return; // no URL params
+
+  // Salon name: si viene por URL y el estado no tiene nombre, o si el id cambió
+  if (p.salon) state.salonName = decodeURIComponent(p.salon);
+  if (p.rep)   state.repName   = decodeURIComponent(p.rep);
+  if (p.zone)  state.salonZone = decodeURIComponent(p.zone);
+  if (p.ftes)  state.g3Ftes    = p.ftes;
+  if (p.activo) state.g3Activo = p.activo; // "si" o "no"
+  if (p.compra) state.g3CompraActual = p.compra;
+  if (p.ocup)  state.ocupacion = clamp(parseFloat(p.ocup)||85, 0, 100);
+
+  // Ticket: si viene, aplicar al primer servicio de coloración o crear uno
+  if (p.ticket && parseFloat(p.ticket) > 0) {
+    const ticketVal = parseFloat(p.ticket);
+    // Buscar servicio que tenga "color" en el nombre
+    const colorSvc = state.servicios.find(s => /color/i.test(s.nombre));
+    if (colorSvc) {
+      colorSvc.ticket = ticketVal;
+    }
+    // Si no hay servicios, no crear automáticamente — el rep elegirá presets
+  }
+
+  saveState();
+}
+
+function saveState() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function flashPill(msg) {
+  const ind = document.getElementById('saveIndicator');
+  ind.textContent = '✓ ' + msg;
+  ind.classList.add('show');
+  setTimeout(() => ind.classList.remove('show'), 1500);
+}
+
+/* ===================== UI BIND ===================== */
+function hydrateInputs() {
+  document.getElementById('salonName').value = state.salonName || "";
+  document.getElementById('salonZone').value = state.salonZone || "";
+  document.getElementById('repName').value = state.repName || "";
+  document.getElementById('ocupacion').value = state.ocupacion ?? 85;
+  document.getElementById('g3Activo').value = state.g3Activo || "";
+  document.getElementById('g3Ftes').value = state.g3Ftes || "";
+  document.getElementById('g3CompraActual').value = state.g3CompraActual || "";
+  document.getElementById('g3Merma').value = state.g3Merma || "";
+  document.getElementById('mixPolicy').value = state.mixPolicy || "warn";
+
+  if (state.g3Activo === 'no') {
+    const inp = document.getElementById('g3CompraActual');
+    inp.disabled = true; inp.style.opacity = '0.4'; inp.style.cursor = 'not-allowed';
+    document.getElementById('compraActualNote').style.display = 'block';
+  }
+
+  const I = state.inputs || {};
+  for (const k of Object.keys(I)) {
+    const el = document.getElementById(k);
+    if (el) el.value = I[k];
+  }
+  hydrateEstacionalidad();
+}
+
+function attachListeners() {
+  const bind = (id, fn) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', fn);
+    el.addEventListener('change', fn);
+  };
+
+  bind("salonName", () => { state.salonName = document.getElementById('salonName').value; saveState(); scheduleCalc(); });
+  bind("salonZone", () => { state.salonZone = document.getElementById('salonZone').value; saveState(); scheduleCalc(); });
+  bind("repName", () => { state.repName = document.getElementById('repName').value; saveState(); scheduleCalc(); });
+  bind("g3Activo", () => {
+    state.g3Activo = document.getElementById('g3Activo').value;
+    const isGain = state.g3Activo === 'no';
+    const inp = document.getElementById('g3CompraActual');
+    const note = document.getElementById('compraActualNote');
+    inp.disabled = isGain; inp.style.opacity = isGain ? '0.4' : '1'; inp.style.cursor = isGain ? 'not-allowed' : '';
+    note.style.display = isGain ? 'block' : 'none';
+    if (isGain) { inp.value = ''; state.g3CompraActual = ''; }
+    saveState(); scheduleCalc();
+  });
+  bind("g3Ftes", () => { state.g3Ftes = document.getElementById('g3Ftes').value; saveState(); scheduleCalc(); });
+  bind("g3CompraActual", () => { state.g3CompraActual = document.getElementById('g3CompraActual').value; saveState(); scheduleCalc(); });
+  bind("g3Merma", () => { state.g3Merma = document.getElementById('g3Merma').value; saveState(); scheduleCalc(); });
+  bind("ocupacion", () => { state.ocupacion = clamp(parseFloat(document.getElementById('ocupacion').value)||0, 0, 100); saveState(); scheduleCalc(); });
+  bind("mixPolicy", () => { state.mixPolicy = document.getElementById('mixPolicy').value; saveState(); scheduleCalc(); });
+
+  const keys = ["weeks","horasDia","iva","tc"];
+  keys.forEach(k => bind(k, () => {
+    const el = document.getElementById(k);
+    state.inputs[k] = parseFloat(el.value) || 0;
+    saveState(); scheduleCalc();
+  }));
+}
+
+/* ===================== RENDER DAYS ===================== */
+function renderDays() {
+  const dRow = document.getElementById('daysRow');
+  dRow.innerHTML = diasNombres.map((name, i) => `
+    <div class="day-box">
+      <label>${name}</label>
+      <select data-day="${i}">
+        <option value="1" ${state.configDias[i]==1?'selected':''}>Full</option>
+        <option value="0.5" ${state.configDias[i]==0.5?'selected':''}>1/2</option>
+        <option value="0" ${state.configDias[i]==0?'selected':''}>OFF</option>
+      </select>
+    </div>
+  `).join('');
+  dRow.querySelectorAll('select[data-day]').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      state.configDias[parseInt(e.target.getAttribute('data-day'))] = parseFloat(e.target.value);
+      saveState(); scheduleCalc();
+    });
+  });
+}
+
+/* ===================== SERVICIOS CRUD ===================== */
+function escapeAttr(s) { return String(s ?? "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function escapeHtml(s) { return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function renderServicios() {
+  const sList = document.getElementById('serviciosList');
+  sList.innerHTML = '';
+  if(state.servicios.length===0){
+    sList.innerHTML='<div class="info">No hay servicios. Agregá desde presets o creá uno vacío.</div>';
+    return;
+  }
+  if (!window._svcOpen) window._svcOpen = {};
+
+  state.servicios.forEach((s) => {
+    const costoKit = (s.insumos||[]).reduce((a, b) => a + (b.p > 0 ? b.pr * (b.u / b.p) : 0), 0);
+    const isOpen = window._svcOpen[s.id] === true;
+    const div = document.createElement('div');
+    div.className = 'svc-card' + (isOpen ? ' open' : '');
+    div.id = `svccard-${s.id}`;
+
+    div.innerHTML = `
+      <div class="svc-header" onclick="toggleSvcCard('${s.id}')">
+        <span class="svc-chevron">▼</span>
+        <div class="svc-header-info">
+          <div class="svc-header-name">${escapeHtml(s.nombre || 'Sin nombre')}</div>
+          <div class="svc-header-meta">${Number(s.duracion)||60} min · Ticket $${fmtUYU0(Number(s.ticket)||0)} · Insumos $${fmtUYU0(costoKit)}</div>
+        </div>
+        <div class="svc-header-badges">
+          <span class="svc-pct-badge">${Number(s.peso)||0}%</span>
+          <div class="svc-actions" style="position:static;margin-left:4px;" onclick="event.stopPropagation()">
+            <button class="svc-menu-btn" onclick="toggleServiceMenu('${s.id}')" title="Opciones">⋮</button>
+            <div class="svc-dropdown" id="menu-${s.id}">
+              <div class="svc-dropdown-item" onclick="duplicateServicio('${s.id}'); closeAllMenus();">📋 Duplicar</div>
+              <div class="svc-dropdown-item danger" onclick="removeServicio('${s.id}'); closeAllMenus();">🗑️ Eliminar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="svc-body" style="${isOpen ? '' : 'display:none;'}">
+        <div class="svc-body-inner">
+          <div class="formGrid">
+            <div class="field"><label>Nombre</label><input type="text" value="${escapeAttr(s.nombre)}" oninput="updateS('${s.id}','nombre',this.value)"></div>
+            <div class="field"><label>% Mix</label><input type="number" value="${Number(s.peso)||0}" oninput="updateS('${s.id}','peso',this.value)" max="100"></div>
+            <div class="field"><label>Ticket Bruto (UYU)</label><input type="number" value="${Number(s.ticket)||0}" oninput="updateS('${s.id}','ticket',this.value)"></div>
+            <div class="field"><label>Duración (min)</label><input type="number" value="${Number(s.duracion)||60}" oninput="updateS('${s.id}','duracion',this.value)" min="5"></div>
+            <div class="field"><label>Costo Insumos</label><span class="val" style="color:var(--accent);">UYU $ ${fmtUYU0(costoKit)}</span></div>
+          </div>
+          <table class="table-kit" style="margin-top:16px;">
+            <thead><tr><th>Insumo</th><th>Pack (g/ml)</th><th>$ Precio</th><th>Uso (g/ml)</th><th></th></tr></thead>
+            <tbody>
+              ${(s.insumos||[]).map((ins, idx) => `
+                <tr>
+                  <td><input type="text" value="${escapeAttr(ins.n)}" oninput="updateI('${s.id}',${idx},'n',this.value)"></td>
+                  <td><input type="number" value="${Number(ins.p)||0}" oninput="updateI('${s.id}',${idx},'p',this.value)"></td>
+                  <td><input type="number" value="${Number(ins.pr)||0}" oninput="updateI('${s.id}',${idx},'pr',this.value)"></td>
+                  <td><input type="number" value="${Number(ins.u)||0}" oninput="updateI('${s.id}',${idx},'u',this.value)"></td>
+                  <td style="text-align:right"><button class="btn-small" style="background:var(--neg);color:white;border:none;cursor:pointer;padding:4px 8px;border-radius:4px;font-size:10px;" onclick="removeI('${s.id}',${idx})">✕</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-small" onclick="addI('${s.id}')">+ Insumo Manual</button>
+            <button class="btn btn-add btn-small" onclick="openProductsModal('${s.id}')">🛍️ Elegir de Biblioteca</button>
+          </div>
+        </div>
+      </div>
+    `;
+    sList.appendChild(div);
+  });
+}
+
+function toggleSvcCard(id) {
+  const card = document.getElementById(`svccard-${id}`);
+  if (!card) return;
+  const body = card.querySelector('.svc-body');
+  const isOpen = card.classList.contains('open');
+  if (isOpen) { card.classList.remove('open'); body.style.display = 'none'; window._svcOpen[id] = false; }
+  else { card.classList.add('open'); body.style.display = ''; window._svcOpen[id] = true; }
+}
+
+function toggleSeccion2() { document.getElementById('secServicios').classList.toggle('section-collapsed'); }
+
+function addServicio() {
+  state.servicios.push({ id:uid(), nombre:'Nuevo servicio', peso:0, ticket:0, duracion:60, insumos:[] });
+  saveState(); renderServicios(); scheduleCalc(); flashPill('Servicio agregado');
+}
+
+function removeServicio(id) {
+  state.servicios = state.servicios.filter(s=>s.id!==id);
+  saveState(); renderServicios(); scheduleCalc(); flashPill('Servicio eliminado');
+}
+
+function duplicateServicio(id) {
+  const src = state.servicios.find(s=>s.id===id);
+  if(!src) return;
+  const dup = JSON.parse(JSON.stringify(src));
+  dup.id = uid(); dup.nombre += ' (copia)';
+  state.servicios.push(dup);
+  saveState(); renderServicios(); scheduleCalc(); flashPill('Servicio duplicado');
+}
+
+function updateS(id, field, val) {
+  const s = state.servicios.find(x=>x.id===id);
+  if(!s) return;
+  if(field==='nombre') s[field]=val;
+  else s[field]=parseFloat(val)||0;
+  saveState(); scheduleCalc();
+  // Update header without full re-render
+  const card = document.getElementById(`svccard-${id}`);
+  if(card){
+    const nameEl = card.querySelector('.svc-header-name');
+    const metaEl = card.querySelector('.svc-header-meta');
+    const badgeEl = card.querySelector('.svc-pct-badge');
+    const costoKit = (s.insumos||[]).reduce((a, b) => a + (b.p > 0 ? b.pr * (b.u / b.p) : 0), 0);
+    if(nameEl) nameEl.textContent = s.nombre || 'Sin nombre';
+    if(metaEl) metaEl.textContent = `${Number(s.duracion)||60} min · Ticket $${fmtUYU0(Number(s.ticket)||0)} · Insumos $${fmtUYU0(costoKit)}`;
+    if(badgeEl) badgeEl.textContent = `${Number(s.peso)||0}%`;
+  }
+}
+
+function addI(sId) {
+  const s = state.servicios.find(x=>x.id===sId);
+  if(!s) return;
+  if(!s.insumos) s.insumos=[];
+  s.insumos.push({n:'',p:0,pr:0,u:0});
+  saveState(); renderServicios(); scheduleCalc();
+}
+
+function removeI(sId, idx) {
+  const s = state.servicios.find(x=>x.id===sId);
+  if(!s || !s.insumos) return;
+  s.insumos.splice(idx,1);
+  saveState(); renderServicios(); scheduleCalc();
+}
+
+function updateI(sId, idx, field, val) {
+  const s = state.servicios.find(x=>x.id===sId);
+  if(!s || !s.insumos || !s.insumos[idx]) return;
+  s.insumos[idx][field] = (field==='n') ? val : (parseFloat(val)||0);
+  saveState(); scheduleCalc();
+}
+
+/* ===================== PRESETS ===================== */
+function openPresetsModal() {
+  const m = document.getElementById('presetsModal');
+  const list = document.getElementById('presetsList');
+  list.innerHTML = PRESETS.map((p,i) => {
+    const costoKit = p.insumos.reduce((a,b)=>a+(b.p>0?b.pr*(b.u/b.p):0),0);
+    return `
+    <div class="preset-card" onclick="editPreset(${i})">
+      <h4>${escapeHtml(p.nombre)}</h4>
+      <div class="preset-details">
+        ${p.descripcion ? '<div style="margin-bottom:4px;">'+escapeHtml(p.descripcion)+'</div>' : ''}
+        Ticket: $${fmtUYU0(p.ticket)} · ${p.duracion} min<br>
+        Kit: $${fmtUYU0(costoKit)} · ${p.insumos.length} insumos<br>
+        Mix sugerido: ${p.peso}%
+      </div>
+    </div>`;
+  }).join('');
+  m.classList.add('show');
+}
+function closePresetsModal() { document.getElementById('presetsModal').classList.remove('show'); }
+
+function editPreset(idx) {
+  currentPresetEdit = JSON.parse(JSON.stringify(PRESETS[idx]));
+  document.getElementById('editPresetName').value = currentPresetEdit.nombre;
+  document.getElementById('editPresetPeso').value = currentPresetEdit.peso;
+  document.getElementById('editPresetTicket').value = currentPresetEdit.ticket;
+  document.getElementById('editPresetDuracion').value = currentPresetEdit.duracion;
+  renderEditPresetProducts();
+  closePresetsModal();
+  document.getElementById('editPresetModal').classList.add('show');
+}
+function closeEditPresetModal() { document.getElementById('editPresetModal').classList.remove('show'); currentPresetEdit = null; }
+
+function renderEditPresetProducts() {
+  if(!currentPresetEdit) return;
+  const list = document.getElementById('editPresetProductsList');
+  list.innerHTML = currentPresetEdit.insumos.map((ins,i) => `
+    <div class="preset-product-row">
+      <div class="preset-product-inputs">
+        <input type="text" value="${escapeAttr(ins.n)}" oninput="currentPresetEdit.insumos[${i}].n=this.value">
+        <input type="number" value="${ins.p}" oninput="currentPresetEdit.insumos[${i}].p=parseFloat(this.value)||0">
+        <input type="number" value="${ins.pr}" oninput="currentPresetEdit.insumos[${i}].pr=parseFloat(this.value)||0">
+        <input type="number" value="${ins.u}" oninput="currentPresetEdit.insumos[${i}].u=parseFloat(this.value)||0">
+      </div>
+      <button style="background:var(--neg);color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;" onclick="currentPresetEdit.insumos.splice(${i},1);renderEditPresetProducts();">✕</button>
+    </div>
+  `).join('');
+}
+
+function addEditPresetProduct() {
+  if(!currentPresetEdit) return;
+  currentPresetEdit.insumos.push({n:'',p:0,pr:0,u:0});
+  renderEditPresetProducts();
+}
+
+function confirmEditPreset() {
+  if(!currentPresetEdit) return;
+  const s = {
+    id: uid(),
+    nombre: document.getElementById('editPresetName').value || currentPresetEdit.nombre,
+    peso: parseFloat(document.getElementById('editPresetPeso').value)||0,
+    ticket: parseFloat(document.getElementById('editPresetTicket').value)||0,
+    duracion: parseFloat(document.getElementById('editPresetDuracion').value)||60,
+    insumos: currentPresetEdit.insumos
+  };
+  state.servicios.push(s);
+  saveState(); renderServicios(); scheduleCalc();
+  closeEditPresetModal();
+  flashPill('Preset agregado');
+}
+
+/* ===================== PRODUCTS MODAL ===================== */
+function openProductsModal(sId) {
+  currentServiceIdForProducts = sId;
+  renderProductLibrary();
+  document.getElementById('productSearch').value = '';
+  document.getElementById('productsModal').classList.add('show');
+}
+function closeProductsModal() { document.getElementById('productsModal').classList.remove('show'); }
+function filterProducts() { renderProductLibrary(document.getElementById('productSearch').value); }
+
+function renderProductLibrary(f='') {
+  const c = document.getElementById('productsList');
+  const flt = PRODUCT_LIBRARY.filter(p=>f===''||p.n.toLowerCase().includes(f.toLowerCase())||p.cat.toLowerCase().includes(f.toLowerCase()));
+  const grp = {};
+  flt.forEach(p=>{if(!grp[p.cat])grp[p.cat]=[];grp[p.cat].push(p);});
+  c.innerHTML = Object.keys(grp).sort().map((cat,idx)=>`
+    <div class="category-accordion">
+      <div class="category-header" onclick="toggleCategory('cat-${idx}')">
+        <h4>${cat}</h4>
+        <span class="category-count">${grp[cat].length}</span>
+        <span class="category-icon" id="icon-cat-${idx}">▼</span>
+      </div>
+      <div class="category-content" id="cat-${idx}" style="display:${idx===0?'block':'none'};">
+        ${grp[cat].map(p=>`
+          <div class="product-item" onclick="addProductToService('${escapeAttr(p.n)}',${p.p})">
+            <div class="product-info">
+              <div class="product-name">${escapeHtml(p.n)}</div>
+              <div class="product-specs">Pack: ${p.p}${p.p>=1000?'ml':'g'} · $${fmtUYU0(p.pr)} · Uso: ${p.uso}${p.p>=1000?'ml':'g'}</div>
+            </div>
+            <div class="product-price">+</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleCategory(id) {
+  const el = document.getElementById(id);
+  const icon = document.getElementById('icon-'+id);
+  if(!el) return;
+  if(el.style.display==='none'){el.style.display='block';if(icon)icon.textContent='▲';}
+  else{el.style.display='none';if(icon)icon.textContent='▼';}
+}
+
+function addProductToService(name, pack) {
+  if(!currentServiceIdForProducts) return;
+  const s = state.servicios.find(x=>x.id===currentServiceIdForProducts);
+  if(!s) return;
+  if(!s.insumos) s.insumos=[];
+  const lib = PRODUCT_LIBRARY.find(p=>p.n===name && p.p===pack);
+  s.insumos.push({n:name, p:pack, pr:lib?lib.pr:0, u:lib?lib.uso:0});
+  saveState(); renderServicios(); scheduleCalc();
+  flashPill('Producto agregado');
+}
+
+/* ===================== DROPDOWN MENUS ===================== */
+function toggleServiceMenu(serviceId) {
+  const menu = document.getElementById('menu-' + serviceId);
+  if (!menu) return;
+  const btn = menu.previousElementSibling;
+  const wasOpen = menu.classList.contains('show');
+  closeAllMenus();
+  if (wasOpen) return;
+  const rect = btn.getBoundingClientRect();
+  menu.style.top = (rect.bottom + 4) + 'px';
+  menu.style.right = (window.innerWidth - rect.right) + 'px';
+  menu.style.left = 'auto';
+  menu.classList.add('show');
+  setTimeout(() => {
+    document.addEventListener('click', function closeOnOutside(e) {
+      if (!e.target.closest('.svc-actions')) { closeAllMenus(); document.removeEventListener('click', closeOnOutside); }
+    });
+  }, 10);
+}
+function closeAllMenus() { document.querySelectorAll('.svc-dropdown').forEach(m=>m.classList.remove('show')); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllMenus(); });
+
+/* ===================== ESTACIONALIDAD ===================== */
+const MESES_NOMBRES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+const SEASON_PRESETS = {
+  flat:    [100,100,100,100,100,100,100,100,100,100,100,100],
+  summer:  [120,115,105,90,80,75,75,80,90,100,110,120],
+  winter:  [80,80,90,105,115,120,120,115,105,90,85,80],
+  fiestas: [90,85,95,90,100,95,90,85,100,105,115,130],
+  turismo: [140,130,110,80,70,65,65,70,80,95,115,140]
+};
+
+function getEstacionalidad() {
+  if (!state.estacionalidad) state.estacionalidad = { activa: false, factores: SEASON_PRESETS.flat.slice() };
+  return state.estacionalidad;
+}
+
+function toggleEstacionalidad() {
+  const est = getEstacionalidad();
+  est.activa = !est.activa;
+  const panel = document.getElementById('estacionalidadPanel');
+  const knob = document.getElementById('estacionalidadKnob');
+  const track = knob.parentElement.querySelector('span:first-of-type');
+  if (est.activa) {
+    panel.style.display = 'block';
+    track.style.background = 'var(--wella-gold)';
+    knob.style.left = '22px';
+    renderSeasonGrid();
+  } else {
+    panel.style.display = 'none';
+    track.style.background = 'var(--border)';
+    knob.style.left = '2px';
+  }
+  document.getElementById('estacionalidadToggle').checked = est.activa;
+  saveState(); scheduleCalc();
+}
+
+function renderSeasonGrid() {
+  const est = getEstacionalidad();
+  const grid = document.getElementById('seasonGrid');
+  if (!grid) return;
+  grid.innerHTML = est.factores.map((f, i) => {
+    const barW = clamp(f / 2, 0, 100);
+    const barColor = f >= 110 ? 'var(--pos)' : f <= 85 ? 'var(--neg)' : f <= 95 ? 'var(--warn)' : 'var(--wella-gold)';
+    const inputBorder = f >= 110 ? '1.5px solid var(--pos)' : f <= 85 ? '1.5px solid var(--neg)' : f <= 95 ? '1.5px solid var(--warn)' : '1.5px solid var(--border)';
+    return `
+      <div class="season-cell">
+        <label style="color:${barColor};">${MESES_NOMBRES[i]}</label>
+        <input type="number" value="${f}" min="0" max="200" step="5"
+          style="border:${inputBorder};"
+          oninput="updateSeasonFactor(${i}, this.value)">
+        <div style="background:#e5e7eb;border-radius:2px;margin-top:4px;height:4px;overflow:hidden;">
+          <div style="width:${barW}%;background:${barColor};height:100%;border-radius:2px;"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  updateSeasonSummary();
+}
+
+function updateSeasonFactor(idx, val) {
+  const est = getEstacionalidad();
+  est.factores[idx] = clamp(parseInt(val)||100, 0, 200);
+  saveState(); renderSeasonGrid(); scheduleCalc();
+}
+
+function updateSeasonSummary() {
+  const est = getEstacionalidad();
+  const el = document.getElementById('seasonSummary');
+  if (!el) return;
+  const avg = est.factores.reduce((a,b)=>a+b,0)/12;
+  const max = Math.max(...est.factores);
+  const min = Math.min(...est.factores);
+  const maxMes = MESES_NOMBRES[est.factores.indexOf(max)];
+  const minMes = MESES_NOMBRES[est.factores.indexOf(min)];
+  const avgColor = Math.abs(avg-100)<1 ? 'var(--muted)' : avg>100 ? 'var(--pos)' : 'var(--neg)';
+  el.innerHTML = `
+    <b>Promedio:</b> <span style="color:${avgColor};font-weight:700;">${avg.toFixed(1)}%</span>
+    ${Math.abs(avg-100)>=1 ? `(año rinde ${avg>100?'+':''}${(avg-100).toFixed(1)}% vs plano)` : '(neutro)'}
+    &nbsp;·&nbsp; Mejor: ${maxMes} (${max}%) &nbsp;·&nbsp; Peor: ${minMes} (${min}%)
+  `;
+}
+
+function applySeasonPreset(name) {
+  const est = getEstacionalidad();
+  const preset = SEASON_PRESETS[name];
+  if (!preset) return;
+  est.factores = preset.slice();
+  saveState(); renderSeasonGrid(); scheduleCalc();
+  flashPill('Estacionalidad: ' + name);
+}
+
+function hydrateEstacionalidad() {
+  const est = getEstacionalidad();
+  const toggle = document.getElementById('estacionalidadToggle');
+  const panel = document.getElementById('estacionalidadPanel');
+  const knob = document.getElementById('estacionalidadKnob');
+  const track = knob ? knob.parentElement.querySelector('span:first-of-type') : null;
+  if (toggle) toggle.checked = est.activa;
+  if (est.activa) {
+    if (panel) panel.style.display = 'block';
+    if (track) track.style.background = 'var(--wella-gold)';
+    if (knob) knob.style.left = '22px';
+    renderSeasonGrid();
+  } else {
+    if (panel) panel.style.display = 'none';
+    if (track) track.style.background = 'var(--border)';
+    if (knob) knob.style.left = '2px';
+  }
+}
+
+/* ===================== G3 CLASSIFICATION ===================== */
+function clasificarG3(activo, fteEstilistas, penetracionPct) {
+  const fte = parseFloat(fteEstilistas) || 0;
+  const pct = parseFloat(penetracionPct) || 0;
+  if (activo === "si") {
+    if (fte < 2)  return { seg:"LOW PRIORITY", clase:"g3-low", icon:"⬇", desc:"Cliente activo, bajo potencial" };
+    if (pct >= 50) return { seg:"RETAIN", clase:"g3-retain", icon:"⬛", desc:"Alta penetración — mantener y defender" };
+    if (fte >= 5)  return { seg:"GROW 1", clase:"g3-grow1", icon:"▲▲", desc:"Máximo potencial de crecimiento" };
+    return { seg:"GROW 2", clase:"g3-grow2", icon:"▲", desc:"Buen potencial de crecimiento" };
+  }
+  if (activo === "no") {
+    if (fte < 2)  return { seg:"LOW PRIORITY", clase:"g3-low", icon:"⬇", desc:"Prospecto, bajo potencial" };
+    if (fte >= 5)  return { seg:"GAIN 1", clase:"g3-gain1", icon:"★★", desc:"Prospecto prioritario — máxima inversión" };
+    return { seg:"GAIN 2", clase:"g3-gain2", icon:"★", desc:"Prospecto secundario" };
+  }
+  return { seg:"—", clase:"g3-unknown", icon:"?", desc:"Completá los datos G3 para clasificar" };
+}
+
+/* ===================== CÁLCULO SIMPLIFICADO ===================== */
+let raf = null;
+function scheduleCalc() {
+  if (raf) cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(() => calculate());
+}
+
+function normalizeWeightsIfNeeded(servs) {
+  const sum = servs.reduce((a,s)=>a+(Number(s.peso)||0),0);
+  if (sum <= 0) return { sum, servs, normalized:false };
+  if (Math.abs(sum - 100) < 0.001) return { sum, servs, normalized:false };
+  if (state.mixPolicy === "normalize") {
+    const factor = 100 / sum;
+    const next = servs.map(s => ({...s, peso: (Number(s.peso)||0)*factor}));
+    return { sum: 100, servs: next, normalized:true };
+  }
+  return { sum, servs, normalized:false };
+}
+
+function calculate() {
+  const wks = parseFloat(state.inputs.weeks) || 0;
+  const horasDia = Math.max(1, parseFloat(state.inputs.horasDia) || 8);
+  const iva = (parseFloat(state.inputs.iva) || 0) / 100;
+  const tc = parseFloat(state.inputs.tc) || 1;
+  const ocup = clamp((parseFloat(state.ocupacion)||0)/100, 0, 1.0);
+  const fteProductivos = Math.max(1, parseFloat(state.g3Ftes) || 1);
+
+  // Días año (sin feriados en Lite — simplificado)
+  const diasAnio = state.configDias.reduce((a,b)=>a+b,0) * wks;
+  if (diasAnio <= 0) {
+    document.getElementById('resSummary').innerHTML = '<div class="alert">⚠️ No hay días laborables configurados.</div>';
+    return;
+  }
+
+  // Mix
+  const { sum:sumPeso, servs:servsForCalc } = normalizeWeightsIfNeeded(state.servicios);
+  const mw = document.getElementById('mixWarning');
+  if (state.servicios.length === 0) { mw.innerHTML = '<div class="danger">No hay servicios cargados.</div>'; return; }
+  if (sumPeso <= 0) { mw.innerHTML = '<div class="danger">El mix suma 0%.</div>'; return; }
+  if (Math.abs(sumPeso-100) > 0.01 && state.mixPolicy !== "normalize") {
+    mw.innerHTML = `<div class="alert">El mix suma <b>${sumPeso.toFixed(1)}%</b>. Ajustá los % o activá "Normalizar automático".
+      <button class="btn btn-ghost btn-small" style="margin-left:12px;" onclick="normalizarMix()">Normalizar ahora</button></div>`;
+    return;
+  }
+  if (Math.abs(sumPeso-100) > 0.01 && state.mixPolicy === "normalize") {
+    mw.innerHTML = `<div class="alert">Mix suma ${sumPeso.toFixed(1)}% — normalizado a 100%.</div>`;
+  } else { mw.innerHTML = '<div class="ok">Mix OK (100%).</div>'; }
+
+  // Capacity
+  const minDisponiblesAnio = diasAnio * horasDia * 60 * fteProductivos;
+  const durPromPonderada = servsForCalc.reduce((a,s)=>a+(Number(s.peso)||0)*(Number(s.duracion)||60),0) / Math.max(sumPeso,1);
+  const capServAnio = durPromPonderada > 0 ? minDisponiblesAnio / durPromPonderada : 0;
+  const servDiaImplicito = diasAnio > 0 && fteProductivos > 0 ? capServAnio / diasAnio / fteProductivos : 0;
+
+  // Estacionalidad
+  const est = getEstacionalidad();
+  const estActiva = est.activa === true;
+  const factoresMes = (estActiva && Array.isArray(est.factores) && est.factores.length === 12) ? est.factores : [100,100,100,100,100,100,100,100,100,100,100,100];
+  const avgFactor = factoresMes.reduce((a,b)=>a+b,0)/12;
+  const capMesBase = capServAnio / 12;
+  const mensual = factoresMes.map(f => capMesBase * ocup * (f / 100));
+  const servAnio = estActiva ? mensual.reduce((a,b)=>a+b,0) : capServAnio * ocup;
+
+  // Revenue & cost
+  let factBruta=0, factNeta=0, costoInsumosTotal=0;
+  let serviciosConMargen = [];
+
+  servsForCalc.forEach(s => {
+    const peso = Number(s.peso)||0;
+    const cant = capServAnio > 0 ? (servAnio * peso / 100) : 0;
+    const costoK = (s.insumos||[]).reduce((a,b)=>a+(b.p>0?(b.pr*(b.u/b.p)):0),0);
+    const tBruto = Number(s.ticket)||0;
+    const tNeto = (1+iva)>0 ? tBruto/(1+iva) : tBruto;
+    factBruta += cant * tBruto;
+    factNeta += cant * tNeto;
+    costoInsumosTotal += cant * costoK;
+    const margen = tNeto - costoK;
+    const pctMargen = tNeto > 0 ? (margen/tNeto*100) : 0;
+    serviciosConMargen.push({ id:s.id, nombre:s.nombre, duracion:Number(s.duracion)||60, margen, pctMargen, contribucion:cant*margen, cantAnual:cant, costoKit:costoK, ticketNeto:tNeto });
+  });
+
+  // Sell-in
+  const mermaFactor = 1 + (Math.min(parseFloat(state.g3Merma)||0, 30)/100);
+  const compraTotalUYU = costoInsumosTotal;
+  const compraTotalConMerma = compraTotalUYU * mermaFactor;
+  const compraFTE_UYU = compraTotalConMerma / fteProductivos;
+  const compraFTE_USD = compraFTE_UYU / tc;
+
+  // ============ RENDER SUMMARY ============
+  document.getElementById('resSummary').innerHTML = `
+    <div class="res-row"><span>FTE Productivos:</span><span class="val">${fteProductivos}</span></div>
+    <div class="res-row"><span>Días/año:</span><span class="val">${diasAnio.toFixed(1)}</span></div>
+    <div class="res-row"><span>Duración promedio ponderada:</span><span class="val">${Math.round(durPromPonderada)} min</span></div>
+    <div class="res-row"><span>→ Servicios implícitos/puesto/día:</span><span class="val">${servDiaImplicito.toFixed(1)}</span></div>
+    <div class="res-row"><span>Capacidad anual (teórica):</span><span class="val">${fmtUYU0(capServAnio)} serv</span></div>
+    <div class="res-row"><span>Capacidad usada (${Math.round(ocup*100)}%):</span><span class="val">${fmtUYU0(servAnio)} serv</span></div>
+    ${estActiva ? `
+    <div style="font-size:10px;color:var(--warn);margin-top:-6px;margin-bottom:6px;padding-left:4px;">
+      📅 Estacionalidad activa (promedio ${avgFactor.toFixed(1)}%) — ${Math.abs(avgFactor-100)<1 ? 'sin impacto neto' : (avgFactor>100?'+':'')+(avgFactor-100).toFixed(1)+'% vs plano'}
+    </div>` : ''}
+    <hr style="border:none;border-top:1px solid var(--border);margin:12px 0;">
+    <div class="res-row"><span>Venta bruta anual:</span><span class="val">UYU $${fmtUYU0(factBruta)}</span></div>
+    <div class="res-row"><span>Venta neta anual (sin IVA):</span><span class="val">UYU $${fmtUYU0(factNeta)}</span></div>
+    <div class="res-row"><span>Costo insumos anual:</span><span class="val neg">UYU $${fmtUYU0(costoInsumosTotal)}</span></div>
+    <div style="margin-top:16px;padding:15px;background:var(--panel);border-radius:8px;border-left:3px solid var(--wella-gold);">
+      <div style="font-size:0.75rem;color:#5a5a5a;font-weight:700;text-transform:uppercase;margin-bottom:8px;">📦 POTENCIAL SELL-IN ANUAL</div>
+      <span class="val-big" style="color:var(--wella-gold);">UYU $${fmtUYU0(compraTotalConMerma)}</span>
+      <span class="val-big" style="font-size:18px;color:var(--muted);">USD $${fmtUYU0(compraTotalConMerma/tc)}</span>
+      ${mermaFactor > 1 ? `<div style="font-size:11px;color:var(--warn);margin-top:4px;">Incluye ${Math.round((mermaFactor-1)*100)}% merma</div>` : ''}
+    </div>
+  `;
+
+  // ============ ESTACIONALIDAD RESULTS ============
+  const seasonPanel = document.getElementById('seasonResults');
+  if (estActiva && seasonPanel) {
+    seasonPanel.style.display = '';
+    const mesesNom = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const maxServ = Math.max(...mensual);
+    // Venta neta y costo insumos mensual (proporcional)
+    const factNetaMes = mensual.map(sm => {
+      if (servAnio <= 0) return 0;
+      return (sm / servAnio) * factNeta;
+    });
+    const costoInsumosMes = mensual.map(sm => {
+      if (servAnio <= 0) return 0;
+      return (sm / servAnio) * costoInsumosTotal;
+    });
+
+    document.getElementById('resEstacionalidad').innerHTML = `
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+        Promedio factor: <b>${avgFactor.toFixed(1)}%</b>
+        ${Math.abs(avgFactor-100)>=1 ? ` — año rinde ${avgFactor>100?'+':''}${(avgFactor-100).toFixed(1)}% vs plano` : ' — neutro'}
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="table-compras" style="font-size:11px;">
+          <thead>
+            <tr>
+              <th>Mes</th>
+              <th style="text-align:center;">Factor</th>
+              <th style="text-align:right;">Servicios</th>
+              <th style="text-align:right;">Venta Neta</th>
+              <th style="text-align:right;">Costo Insumos</th>
+              <th style="width:80px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${mensual.map((sm, i) => {
+              const f = factoresMes[i];
+              const barW = maxServ > 0 ? (sm / maxServ * 100) : 0;
+              const barColor = f >= 110 ? '#16a34a' : f <= 85 ? '#dc2626' : f <= 95 ? '#d97706' : '#C9A961';
+              return `<tr>
+                <td><b>${mesesNom[i]}</b></td>
+                <td style="text-align:center;color:${barColor};font-weight:700;">${f}%</td>
+                <td style="text-align:right;">${fmtUYU0(sm)}</td>
+                <td style="text-align:right;">$${fmtUYU0(factNetaMes[i])}</td>
+                <td style="text-align:right;color:var(--neg);">$${fmtUYU0(costoInsumosMes[i])}</td>
+                <td><div style="height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${barW.toFixed(0)}%;background:${barColor};border-radius:4px;"></div></div></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } else if (seasonPanel) {
+    seasonPanel.style.display = 'none';
+  }
+
+  // ============ G3 ============
+  const g3Activo = state.g3Activo || "";
+  const g3Ftes = parseFloat(state.g3Ftes) || 0;
+  const g3CompraActual = parseFloat(state.g3CompraActual) || 0;
+  const potencial = compraTotalConMerma;
+  const penetracionPct = (potencial > 0 && g3CompraActual > 0) ? (g3CompraActual / potencial * 100) : 0;
+  const penetracionDisplay = potencial > 0 && g3CompraActual > 0;
+  const g3 = clasificarG3(g3Activo, g3Ftes, penetracionPct);
+  const gap = potencial - g3CompraActual;
+  const gapPositivo = gap > 0 && g3CompraActual > 0;
+  const penColor = penetracionPct >= 50 ? 'var(--pos)' : penetracionPct >= 25 ? 'var(--warn)' : 'var(--neg)';
+
+  document.getElementById('resG3').innerHTML = `
+    <div class="g3-badge ${g3.clase}">
+      <span style="font-size:1.4rem;">${g3.icon}</span>
+      <div>
+        <div>${g3.seg}</div>
+        <div style="font-size:0.75rem;font-weight:500;opacity:0.85;">${g3.desc}</div>
+      </div>
+    </div>
+    ${penetracionDisplay ? `
+    <div style="margin:16px 0 8px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;">
+        <span style="color:var(--muted);font-weight:600;">% Penetración Wella</span>
+        <span style="font-weight:800;color:${penColor};">${penetracionPct.toFixed(1)}%</span>
+      </div>
+      <div class="penetracion-bar">
+        <div class="penetracion-fill" style="width:${Math.min(penetracionPct,100).toFixed(1)}%;background:${penColor};"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);margin-top:2px;">
+        <span>0%</span><span style="color:var(--warn);">▲ 50% umbral RETAIN</span><span>100%</span>
+      </div>
+    </div>` : ''}
+    <div style="margin-top:16px;">
+      <div class="res-row"><span>Potencial calculado (modelo):</span><span class="val">UYU $${fmtUYU0(potencial)}</span></div>
+      ${g3CompraActual > 0 ? `
+      <div class="res-row"><span>Compra actual Wella:</span><span class="val">UYU $${fmtUYU0(g3CompraActual)}</span></div>
+      ${gapPositivo ? `
+      <div class="res-row" style="border-top:2px dashed var(--wella-gold);margin-top:8px;padding-top:12px;">
+        <span><b>🎯 Oportunidad:</b></span>
+        <span class="val" style="color:var(--wella-gold);">UYU $${fmtUYU0(gap)}</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">
+        USD $${fmtUYU0(gap/tc)} · penetración ${penetracionPct.toFixed(1)}% → espacio ${(100-Math.min(penetracionPct,100)).toFixed(1)}%
+      </div>` : `<div class="ok" style="margin-top:8px;">Compra actual supera potencial.</div>`}
+      ` : ''}
+      <div class="res-row"><span>Compra anual/FTE:</span><span class="val">UYU $${fmtUYU0(compraFTE_UYU)}</span></div>
+      <div class="res-row"><span>Compra anual/FTE (USD):</span><span class="val">USD ${compraFTE_USD.toFixed(0)}</span></div>
+      <div class="res-row"><span>Compra mensual/FTE:</span><span class="val">UYU $${fmtUYU0(compraFTE_UYU/12)}</span></div>
+    </div>
+    ${!g3Activo || !state.g3Ftes ? `<div class="alert" style="margin-top:12px;">Completá los datos G3 para activar la clasificación.</div>` : ''}
+  `;
+
+  document.getElementById('modePill').innerText = `${g3.seg !== '—' ? g3.seg + ' · ' : ''}Compra/FTE: $${fmtUYU0(compraFTE_UYU)}`;
+
+  // ============ SELL-IN TABLE ============
+  let invGlobal = {};
+  servsForCalc.forEach(s => {
+    const peso = Number(s.peso)||0;
+    const cant = capServAnio > 0 ? (servAnio * peso / 100) : 0;
+    (s.insumos||[]).forEach(i => {
+      const name = i.n || "Item";
+      if (!invGlobal[name]) invGlobal[name] = { u:0, c:0, pack:i.p||0 };
+      const totalUso = cant * (Number(i.u)||0);
+      const unidades = (Number(i.p)||0) > 0 ? (totalUso / Number(i.p)) : 0;
+      invGlobal[name].u += unidades;
+      invGlobal[name].c += unidades * (Number(i.pr)||0);
+    });
+  });
+
+  const rowsInv = Object.keys(invGlobal).sort((a,b)=>invGlobal[b].c-invGlobal[a].c)
+    .map(k=>`<tr><td>${escapeHtml(k)}</td><td>${Math.ceil(invGlobal[k].u)} und</td><td>UYU $${fmtUYU0(invGlobal[k].c)}</td></tr>`).join('');
+
+  document.getElementById('resCompras').innerHTML = `
+    <div class="res-row"><span>Compra anual/FTE:</span><span class="val">UYU $${fmtUYU0(compraFTE_UYU)}</span></div>
+    <div class="res-row"><span>Compra anual/FTE (USD):</span><span class="val">USD ${compraFTE_USD.toFixed(0)}</span></div>
+    ${mermaFactor > 1 ? `<div style="font-size:10px;color:var(--warn);margin-top:-6px;margin-bottom:6px;">Incluye ${Math.round((mermaFactor-1)*100)}% merma · Sin merma: UYU $${fmtUYU0(compraTotalUYU)}</div>` : ''}
+    <table class="table-compras">
+      <thead><tr><th>Producto</th><th>Unidades/Año</th><th>Inversión</th></tr></thead>
+      <tbody>${rowsInv || '<tr><td colspan="3" style="padding:12px;color:var(--muted);">Sin insumos</td></tr>'}</tbody>
+    </table>
+  `;
+
+  // ============ MARGIN TABLE (product only, no operating cost) ============
+  document.getElementById('resMargenesProducto').innerHTML = `
+    <table class="table-compras">
+      <thead><tr><th>Servicio</th><th style="text-align:right;">Ticket Neto</th><th style="text-align:right;">Costo Kit</th><th style="text-align:right;">Margen</th><th style="text-align:right;">% Margen</th><th style="text-align:right;">Contribución Anual</th></tr></thead>
+      <tbody>
+        ${serviciosConMargen.map(s => {
+          const col = s.pctMargen >= 35 ? 'var(--pos)' : s.pctMargen >= 20 ? 'var(--warn)' : 'var(--neg)';
+          return `<tr>
+            <td><b>${escapeHtml(s.nombre)}</b></td>
+            <td style="text-align:right;">$${fmtUYU0(s.ticketNeto)}</td>
+            <td style="text-align:right;color:var(--neg);">$${fmtUYU0(s.costoKit)}</td>
+            <td style="text-align:right;color:${col};font-weight:700;">$${fmtUYU0(s.margen)}</td>
+            <td style="text-align:right;color:${col};">${s.pctMargen.toFixed(1)}%</td>
+            <td style="text-align:right;">$${fmtUYU0(s.contribucion)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div class="info" style="margin-top:15px;">
+      💡 Margen de producto = Ticket Neto − Costo de Insumos. No incluye gastos operativos del salón.
+    </div>
+  `;
+
+  // ============ CHART ============
+  const labelsS = serviciosConMargen.map(s => s.nombre);
+  const dataContrib = serviciosConMargen.map(s => s.contribucion);
+
+  if (typeof Chart !== 'undefined') {
+    const ctx2 = document.getElementById('distributionChart').getContext('2d');
+    if (dChart) dChart.destroy();
+    dChart = new Chart(ctx2, {
+      type:'doughnut',
+      data:{
+        labels:labelsS,
+        datasets:[{data:dataContrib, backgroundColor:['#FF2000','#000000','#BA0C2F','#D9D9D9','#F39C12','#27AE60','#3498DB','#9B59B6','#E67E22']}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:'Contribución Anual por Servicio',font:{size:14,weight:'bold'}},legend:{position:'bottom',labels:{font:{size:11}}}}}
+    });
+  }
+}
+
+function normalizarMix() {
+  const total = state.servicios.reduce((s,x)=>s+(Number(x.peso)||0),0);
+  if(total<=0) return;
+  const factor = 100/total;
+  state.servicios.forEach(s => { s.peso = Math.round((Number(s.peso)||0)*factor); });
+  const sum = state.servicios.reduce((s,x)=>s+x.peso,0);
+  if(sum!==100 && state.servicios.length>0) state.servicios[0].peso += (100-sum);
+  saveState(); renderServicios(); scheduleCalc(); flashPill('Mix normalizado');
+}
+
+function exportPDF() {
+  flashPill('Generando informe...');
+  // Collect current calc results by triggering calculate
+  const wks = parseFloat(state.inputs.weeks)||0;
+  const horasDia = Math.max(1, parseFloat(state.inputs.horasDia)||8);
+  const iva = (parseFloat(state.inputs.iva)||0)/100;
+  const tc = parseFloat(state.inputs.tc)||1;
+  const ocup = clamp((parseFloat(state.ocupacion)||0)/100,0,1);
+  const fteP = Math.max(1, parseFloat(state.g3Ftes)||1);
+  const diasAnio = state.configDias.reduce((a,b)=>a+b,0)*wks;
+  const {sum:sumPeso,servs:sfc} = normalizeWeightsIfNeeded(state.servicios);
+  const minDisp = diasAnio*horasDia*60*fteP;
+  const durProm = sfc.reduce((a,s)=>a+(Number(s.peso)||0)*(Number(s.duracion)||60),0)/Math.max(sumPeso,1);
+  const capAnio = durProm>0?minDisp/durProm:0;
+  const est = getEstacionalidad();
+  const estAct = est.activa===true;
+  const fMes = (estAct&&Array.isArray(est.factores)&&est.factores.length===12)?est.factores:[100,100,100,100,100,100,100,100,100,100,100,100];
+  const capMB = capAnio/12;
+  const mens = fMes.map(f=>capMB*ocup*(f/100));
+  const servAnio = estAct?mens.reduce((a,b)=>a+b,0):capAnio*ocup;
+  let fBruta=0,fNeta=0,cIns=0;
+  let svcData=[];
+  sfc.forEach(s=>{
+    const peso=Number(s.peso)||0;
+    const cant=capAnio>0?(servAnio*peso/100):0;
+    const cK=(s.insumos||[]).reduce((a,b)=>a+(b.p>0?(b.pr*(b.u/b.p)):0),0);
+    const tB=Number(s.ticket)||0;
+    const tN=(1+iva)>0?tB/(1+iva):tB;
+    fBruta+=cant*tB;fNeta+=cant*tN;cIns+=cant*cK;
+    const m=tN-cK;
+    const pM=tN>0?(m/tN*100):0;
+    svcData.push({nombre:s.nombre,peso,ticket:tB,dur:Number(s.duracion)||60,costo:cK,margen:m,pctM:pM,cant});
+  });
+  const mermaF=1+(Math.min(parseFloat(state.g3Merma)||0,30)/100);
+  const sellIn=cIns*mermaF;
+  const cFTE=sellIn/fteP;
+  const compraAct=parseFloat(state.g3CompraActual)||0;
+  const penPct=(sellIn>0&&compraAct>0)?(compraAct/sellIn*100):0;
+  const g3=clasificarG3(state.g3Activo,state.g3Ftes,penPct);
+  const gap=compraAct>0?Math.max(0,sellIn-compraAct):0;
+
+  // Build sell-in table
+  let inv={};
+  sfc.forEach(s=>{const peso=Number(s.peso)||0;const cant=capAnio>0?(servAnio*peso/100):0;(s.insumos||[]).forEach(i=>{const nm=i.n||"Item";if(!inv[nm])inv[nm]={u:0,c:0};const tu=cant*(Number(i.u)||0);const un=(Number(i.p)||0)>0?(tu/Number(i.p)):0;inv[nm].u+=un;inv[nm].c+=un*(Number(i.pr)||0);});});
+
+  const svcRows=svcData.map(s=>'<tr><td>'+escapeHtml(s.nombre)+'</td><td>'+s.peso+'%</td><td>$'+fmtUYU0(s.ticket)+'</td><td>'+s.dur+' min</td><td>$'+fmtUYU0(s.costo)+'</td><td>$'+fmtUYU0(s.margen)+'</td><td>'+s.pctM.toFixed(1)+'%</td></tr>').join('');
+  const prodRows=Object.keys(inv).sort((a,b)=>inv[b].c-inv[a].c).map(k=>'<tr><td>'+escapeHtml(k)+'</td><td>'+Math.ceil(inv[k].u)+' und</td><td>$'+fmtUYU0(inv[k].c)+'</td></tr>').join('');
+
+  const html='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><style>'+
+    'body{font-family:Arial,sans-serif;font-size:10pt;color:#111;margin:0;padding:20px;}'+
+    'h1{font-size:14pt;margin:0 0 4px;color:#FF2000;}'+
+    'h2{font-size:11pt;margin:16px 0 6px;color:#FF2000;border-bottom:1px solid #FF2000;padding-bottom:3px;}'+
+    'table{width:100%;border-collapse:collapse;margin-bottom:12px;}'+
+    'td,th{padding:4px 8px;border:1px solid #ddd;font-size:9pt;}'+
+    'th{background:#f3f3f3;font-weight:700;text-align:left;}'+
+    '.kpi{display:inline-block;padding:8px 14px;margin:4px;background:#f3f3f3;border-radius:6px;border-left:3px solid #FF2000;}'+
+    '.kpi b{display:block;font-size:13pt;} .kpi span{font-size:8pt;color:#555;}'+
+    '.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-weight:700;font-size:9pt;}'+
+    '.g3-grow1{background:#166534;color:#fff;}.g3-grow2{background:#16a34a;color:#fff;}'+
+    '.g3-retain{background:#1d4ed8;color:#fff;}.g3-gain1{background:#c2410c;color:#fff;}'+
+    '.g3-gain2{background:#ca8a04;color:#111;}.g3-low{background:#6b7280;color:#fff;}'+
+    '.g3-unknown{background:#ddd;color:#555;}'+
+    'footer{margin-top:20px;font-size:8pt;color:#888;border-top:1px solid #ddd;padding-top:8px;}'+
+    '</style></head><body>'+
+    '<h1>G3 Potencial Lite — Informe</h1>'+
+    '<p style="font-size:9pt;color:#555;margin:0 0 12px;">'+
+    'Salón: <b>'+(state.salonName||'—')+'</b> | Zona: '+(state.salonZone||'—')+
+    ' | Rep.: '+(state.repName||'—')+'<br>Generado: '+new Date().toLocaleString('es-UY')+'</p>'+
+
+    '<h2>Clasificación G3</h2>'+
+    '<p><span class="badge '+g3.clase+'">'+g3.seg+'</span>'+
+    (penPct>0?' &nbsp; Penetración: <b>'+penPct.toFixed(1)+'%</b>':'')+
+    (gap>0?' &nbsp; Oportunidad: <b>UYU $'+fmtUYU0(gap)+'</b>':'')+'</p>'+
+    '<table><tr><th>¿Compró?</th><th>FTE Estilistas</th><th>Compra actual Wella</th><th>Potencial calculado</th></tr>'+
+    '<tr><td>'+(state.g3Activo==='si'?'Sí':state.g3Activo==='no'?'No':'—')+'</td><td>'+(state.g3Ftes||'—')+
+    '</td><td>'+(compraAct>0?'$'+fmtUYU0(compraAct):'—')+'</td><td>$'+fmtUYU0(sellIn)+'</td></tr></table>'+
+
+    '<h2>Potencial de Servicios</h2>'+
+    '<div>'+
+    '<div class="kpi"><b>$'+fmtUYU0(fNeta)+'</b><span>Venta Neta Anual</span></div>'+
+    '<div class="kpi"><b>$'+fmtUYU0(sellIn)+'</b><span>Sell-In Anual</span></div>'+
+    '<div class="kpi"><b>$'+fmtUYU0(cFTE)+'</b><span>Compra/FTE (UYU)</span></div>'+
+    '<div class="kpi"><b>USD '+Math.round(cFTE/tc)+'</b><span>Compra/FTE (USD)</span></div>'+
+    '</div>'+
+    '<table style="margin-top:10px;"><tr><th>Concepto</th><th>Valor</th></tr>'+
+    '<tr><td>Capacidad teórica</td><td>'+fmtUYU0(capAnio)+' serv/año</td></tr>'+
+    '<tr><td>Servicios reales (ocup. '+Math.round(ocup*100)+'%)</td><td>'+fmtUYU0(servAnio)+' serv/año</td></tr>'+
+    '<tr><td>Venta bruta anual</td><td>$'+fmtUYU0(fBruta)+'</td></tr>'+
+    '<tr><td>Venta neta anual</td><td>$'+fmtUYU0(fNeta)+'</td></tr>'+
+    '<tr><td>Costo insumos</td><td style="color:#dc2626">$'+fmtUYU0(cIns)+'</td></tr>'+
+    '<tr style="background:#f3f3f3;font-weight:700;"><td>Sell-In total'+(mermaF>1?' (con '+Math.round((mermaF-1)*100)+'% merma)':'')+'</td><td style="color:#FF2000">$'+fmtUYU0(sellIn)+'</td></tr>'+
+    '</table>'+
+
+    '<h2>Servicios — Margen de Producto</h2>'+
+    '<table><tr><th>Servicio</th><th>Mix%</th><th>Ticket</th><th>Duración</th><th>Costo Kit</th><th>Margen</th><th>%Margen</th></tr>'+
+    svcRows+'</table>'+
+
+    '<h2>Productos — Sell-In Anual</h2>'+
+    '<table><tr><th>Producto</th><th>Unidades/Año</th><th>Inversión UYU</th></tr>'+
+    prodRows+'</table>'+
+
+    '<footer>G3 Potencial Lite — Wella Professional Tools | '+new Date().toLocaleString('es-UY')+'</footer>'+
+    '</body></html>';
+
+  const win=window.open('','_blank');
+  if(!win){
+    const blob=new Blob([html],{type:'text/html'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='Informe_G3_'+(state.salonName||'salon')+'.html';
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    flashPill('Informe HTML descargado');
+    return;
+  }
+  win.document.write(html);
+  win.document.close();
+  setTimeout(()=>{win.print();flashPill('PDF listo');},600);
+}
+function resetAll() {
+  if(!confirm('¿Borrar todo y empezar de cero?')) return;
+  localStorage.removeItem(LS_KEY);
+  location.reload();
+}
+
+/* ===================== INIT ===================== */
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  applyURLParams();
+  hydrateInputs();
+  hydrateEstacionalidad();
+  renderDays();
+  renderServicios();
+  attachListeners();
+  scheduleCalc();
+});
+</script>
+</body>
+</html>
